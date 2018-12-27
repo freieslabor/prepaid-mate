@@ -1,0 +1,6 @@
+__pycache__/
+venv
+prepaid-drinks-venv
+.*.swp
+*.pyc
+config
