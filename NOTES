@@ -1,0 +1,62 @@
+Prepaid-Getränkekasse
+Im Labor muss man ständig mit Kleingeld hantieren, um seine Getränke zu bezahlen. Wenn man im Vorhinein bezahlt,
+hat man sein "Guthaben" nicht gut im Blick.
+
+Kaufen:
+1) eigenen Barcode scannen
+2) System quittiert mit Ton, wenn erfolgreich, sonst Fehlerton (zurück zu 1)
+3) Flasche scannen
+4) System quittiert mit Ton, wenn erfolgreich, sonst Fehlerton (zurück zu 1)
+5) Geld wird abgebucht
+
+Guthaben-Aufladen:
+1) Benutzer wirft Geld in Spardose
+2) Benutzer meldet sich mit seinem Device per Browser an
+3) Benutzer bucht eingeworfene Summe auf sein Prepaid-Konto
+
+[ ] Raspi aussuchen, installieren
+[ ] USB-Hub aussuchen, ausprobieren (als externe Stromversorgung für Scanner)
+[ ] Buzzer aussuchen, testen
+[ ] Holster bauen, anbringen
+[ ] Raspi anbringen
+[ ] API definieren
+[ ] API implementieren
+[ ] UI basteln
+[ ] Scanner-Wandhalterung, Raspi verstauen
+
+DB-Tabelle: drinks
+- id
+- name
+- ml
+- price
+- barcode
+
+DB-Tabelle: accounts
+- id
+- name
+- password_hash
+- barcode(?)
+- saldo
+
+DB-Tabelle: money_logs
+- id
+- account_id
+- amount
+- timestamp
+
+DB-Tabelle: pay_logs
+- id
+- account_id
+- drink_id
+- timestamp
+
+API:
+
+/api/account/create
+/api/account/modify
+/api/account/view
+/api/money/add
+/api/money/view
+/api/payment/view
+/api/payment/perform
+
