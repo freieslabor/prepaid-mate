@@ -24,6 +24,12 @@ Now start the server:
 
 .. code-block:: bash
 
-    $ ./server.py
+    $ flask run
 
-Now head your browser to `http://localhost:8888/` to start.
+Or start the server in debug mode:
+
+.. code-block:: bash
+
+    $ FLASK_DEBUG=1 flask run
+
+Now head your browser to `http://localhost:5000/` to start.
