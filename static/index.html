@@ -7,13 +7,13 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/index.css">
 
     <title>Prepaid Mate!</title>
   </head>
   <body>
     <h1>Prepaid Mate</h1>
-    <div id="start">
-      <form>
+    <div class="hidden" id="start">
         <div class="row">
           <div class="col">
              <div class="form-group">
@@ -30,21 +30,20 @@
         <div class="row">
           <div class="col">
             <button type="submit" class="btn btn-primary">Login</button>
-            <a href="" class="btn btn-primary">Account erstellen</a>
+            <button onclick="newAccount()" class="btn btn-primary">Account erstellen</a>
           </div>
         </div>
-      </form>
     </div>
     
-    <div id="newAccount">
-
+    <div class="hidden" id="newAccount">
+      <h1>NEW ACCOUNT!</h1>
     </div>
 
-    <div id="dashboard">
+    <div class="hidden" id="dashboard">
       
     </div>
 
-    <div id="modifyAccount">
+    <div class="hidden" id="modifyAccount">
       
     </div>
 
@@ -53,5 +52,6 @@
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/prepaidMate.js"></script>
   </body>
 </html>
