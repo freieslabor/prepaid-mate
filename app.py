@@ -97,6 +97,9 @@ def account_view():
     if ret:
         return ret
 
+    user = query_db('SELECT * FROM accounts WHERE name = ?',
+        [request.form['name']], one=True)
+
     return json.dumps(tuple(user))
 
 @app.route('/api/money/add', methods=['POST'])
