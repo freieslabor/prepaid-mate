@@ -31,8 +31,11 @@ def query_db(query, args=(), one=False):
     return (rv[0] if rv else None) if one else rv
 
 def password_check(request):
-    user = query_db('SELECT * FROM accounts WHERE name = ?',
-       [request.form['name']], one=True)
+    try:
+        user = query_db('SELECT * FROM accounts WHERE name = ?',
+            [request.form['name']], one=True)
+    except KeyError:
+        return "incomplete request", 400
 
     if user is None:
         return "no such user", 400
