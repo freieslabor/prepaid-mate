@@ -9,6 +9,7 @@ import urllib.error
 from evdev import InputDevice, categorize, ecodes
 
 PASSWORD = 'PROVIDE_PASSWORD_HERE'
+RESET_BARCODE = '123456789'
 DEBUG = False
 
 class Mode(Enum):
@@ -33,6 +34,8 @@ class BarcodeScannerClient:
             self.process_barcode_user(barcode)
             self.mode = Mode.ORDER
         elif self.mode is Mode.ORDER:
+            if barcode == RESET_BARCODE:
+                return
             self.process_barcode_order(barcode)
             self.mode = Mode.USER
 
