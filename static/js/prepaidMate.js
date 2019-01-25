@@ -47,6 +47,14 @@ function getPaymentData() {
 				dateTransaction = new Date(transactions[i][2]*1000).toLocaleDateString();
 				dateTransaction += " " + new Date(transactions[i][2]*1000).toLocaleTimeString();
 
+				//convert cents to euro
+				transactions[i][0] = transactions[i][0] / 100;
+				//check if negative
+				amountClass = transactions[i][0] < 0 ? "negativeAmount" : "positiveAmount";
+				//write '+' infront if positive
+				if(transactions[i][0] > 0)
+					transactions[i][0] = "+" + transactions[i][0];
+
 				$('#transactionTableBody').append(
 					$("<tr>")
 				.append(
@@ -62,8 +70,8 @@ function getPaymentData() {
 				.append(
 					$("<td>")
 				.append(
-					transactions[i][0]
-				)));
+					transactions[i][0] + "&euro;"
+				).addClass(amountClass)));
 			}
 		}
 	).fail(//show error message from api
