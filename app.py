@@ -119,7 +119,7 @@ def money_add():
 
     try:
         test = query_db('UPDATE accounts SET saldo=saldo+? WHERE name=?',
-                 [request.form['money'], request.form['name']])
+                        [request.form['money'], request.form['name']])
         get_db().commit()
     except BadRequestKeyError:
         return "Incomplete request", 400
