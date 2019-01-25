@@ -43,17 +43,28 @@ function getPaymentData() {
 		function( transactionData ) {
 			transactions = jQuery.parseJSON(transactionData);
 			for(i = 0; i < transactions.length; i++) {
+				//format unix time stamp to human readable format
 				dateTransaction = new Date(transactions[i][2]*1000).toLocaleDateString();
 				dateTransaction += " " + new Date(transactions[i][2]*1000).toLocaleTimeString();
-				$('#transactionTableBody').append(
-						"<tr> \
-						<td>"+dateTransaction+"</td> \
-						<td>"+transactions[i][1]+"</td> \
-						<td>"+transactions[i][0]/100 +"&euro;</td> \
-						</tr>"
-					);
-			}
 
+				$('#transactionTableBody').append(
+					$("<tr>")
+				.append(
+					$("<td>")
+				.append(
+					dateTransaction
+				))
+				.append(
+					$("<td>")
+				.append(
+					transactions[i][1]
+				))
+				.append(
+					$("<td>")
+				.append(
+					transactions[i][0]
+				)));
+			}
 		}
 	).fail(//show error message from api
 		function( errorMessage ) {
