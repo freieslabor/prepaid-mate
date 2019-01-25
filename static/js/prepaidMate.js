@@ -18,8 +18,11 @@ function login() {
 			dashboard();
 		}
 	).fail(
-		function (data ) {
+		function ( data ) {
 			alert("Falscher Nutzername oder Passwort!");
+			$('#start').show();
+			$('#InputUsername').val("");
+			$('#InputPassword').val(""); 
 		}
 	);
 }
