@@ -5,29 +5,32 @@ function newAccount() {
 	$('#newAccount').show();
 }
 
-function login() {
-	credentials = {
-		name:$('#InputUsername').val(),
-		password:$('#InputPassword').val(),
-	}
+credentials = {
+	name: null,
+	password: null,
+}
 
-	$.post(
+function login() {
+	credentials.name = $('#InputUsername').val();
+	credentials.password = $('#InputPassword').val();
+
+	$.post( //pass login credentials to api
 		"/api/account/view", credentials,
-	).done(
-		function( data ) {
-			dashboard();
+	).done( //on successful login call dashboard()
+		function( accountData ) {
+			dashboard(accountData);
 		}
-	).fail(
+	).fail( //on failed login attempt alert user and clear login inputs
 		function ( data ) {
 			alert("Falscher Nutzername oder Passwort!");
 			$('#start').show();
 			$('#InputUsername').val("");
-			$('#InputPassword').val(""); 
+			$('#InputPassword').val("");
 		}
 	);
 }
 
-function dashboard() {
+function dashboard(accountData) {
 	$('.view').hide();
 	$('#dashboard').show();
 }
