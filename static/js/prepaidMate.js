@@ -34,6 +34,12 @@ function dashboard(accountData) {
 	$('.view').hide();
 	$('#dashboard').show();
 	getPaymentData();
+	getCurrentBalance(accountData);
+}
+
+function getCurrentBalance(accountData) {
+	currentBalance = jQuery.parseJSON(accountData);
+	$('#userBalance').html(currentBalance[2] + "&euro;");
 }
 
 function getPaymentData() {

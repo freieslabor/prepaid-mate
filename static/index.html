@@ -14,7 +14,7 @@
   <body>
     <div class="row">
         <img class="col-1" src="images/logo.svg">
-        <h1 class="col-2">Prepaid Mate</h1>
+        <h1 class="col-11">Prepaid Mate</h1>
     </div>
 
     <div class="view" id="start">
@@ -44,18 +44,26 @@
     </div>
 
     <div class="view" id="dashboard">
-      <table class="table">
-        <thead>
-          <tr>
-            <th scope="col">Datum</th>
-            <th scope="col">Verwendungszweck</th>
-            <th scope="col">Buchungsbetrag</th>
-          </tr>
-        </thead>
-        <tbody id="transactionTableBody">
-          <!--will be filled by JavaScript-->
-        </tbody>
-      </table>
+      <div class="row">
+        <div class="col-sm-2 border border-primary rounded">
+          <h1>Current Balance</h1>
+          <h1 id="userBalance"></h1>
+        </div>
+        <table class="table col-xl-10">
+          <thead>
+            <tr>
+              <th scope="col">Datum</th>
+              <th scope="col">Verwendungszweck</th>
+              <th scope="col">Buchungsbetrag</th>
+            </tr>
+          </thead>
+          <tbody id="transactionTableBody">
+            <!--will be filled by JavaScript-->
+          </tbody>
+        </table>
+      </div>
+
+
     </div>
 
     <div class="view" id="modifyAccount">
