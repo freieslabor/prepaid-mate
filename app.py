@@ -100,8 +100,8 @@ def account_view():
     if ret:
         return ret
 
-    user = query_db('SELECT * FROM accounts WHERE name = ?',
-        [request.form['name']], one=True)
+    user = query_db('SELECT name, barcode, saldo FROM accounts WHERE name = ?',
+                    [request.form['name']], one=True)
 
     return json.dumps(tuple(user))
 
