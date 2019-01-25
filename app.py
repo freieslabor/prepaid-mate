@@ -35,14 +35,14 @@ def password_check(request):
         user = query_db('SELECT id FROM accounts WHERE name = ?',
                         [request.form['name']], one=True)
     except KeyError:
-        return "incomplete request", 400
+        return "Incomplete request", 400
 
     if user is None:
-        return "no such user", 400
+        return "No such user", 400
 
     if not check_password_hash(user['password_hash'],
                                request.form['password']):
-        return "wrong pw", 400
+        return "Wrong password", 400
 
 @app.route('/api/account/create', methods=['POST'])
 def account_create():
@@ -60,7 +60,7 @@ def account_create():
     except BadRequestKeyError:
         return "Incomplete request", 400
     except sqlite3.IntegrityError:
-        return "Integrity error", 400
+        return "Database integrity error", 400
     return "ok"
 
 @app.route('/api/account/modify', methods=['POST'])
@@ -86,7 +86,7 @@ def account_modify():
     except BadRequestKeyError:
         return "Incomplete request", 400
     except sqlite3.IntegrityError:
-        return "Integrity error", 400
+        return "Database integrity error", 400
     return "ok"
 
 @app.route('/api/account/view', methods=['POST'])
@@ -124,7 +124,7 @@ def money_add():
     except BadRequestKeyError:
         return "Incomplete request", 400
     except sqlite3.IntegrityError:
-        return "Integrity error", 400
+        return "Databse integrity error", 400
     return "ok"
 
 @app.route('/api/money/view', methods=['POST'])
@@ -149,5 +149,5 @@ def money_view():
     except BadRequestKeyError:
         return "Incomplete request", 400
     except sqlite3.IntegrityError:
-        return "Integrity error", 400
+        return "Database integrity error", 400
     return json.dumps([tuple(row) for row in transactions])
