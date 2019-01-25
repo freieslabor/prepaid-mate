@@ -9,7 +9,7 @@ import urllib.error
 from evdev import InputDevice, categorize, ecodes
 
 PASSWORD = 'PROVIDE_PASSWORD_HERE'
-DEBUG = True
+DEBUG = False
 
 class Mode(Enum):
     USER = auto()
@@ -76,7 +76,7 @@ class BarcodeScannerClient:
 
 if __name__ == '__main__':
     client = BarcodeScannerClient(
-            '/dev/input/by-path/platform-i8042-serio-0-event-kbd', #'/dev/input/by-path/CHANGE_TO_BARCODE_SCANNER_PATH',
+            '/dev/input/by-path/pci-0000:00:14.0-usb-0:2:1.0-event-kbd',
             'http://localhost:5000/api/payment/perform',
             {'password': PASSWORD},
             debug=DEBUG
