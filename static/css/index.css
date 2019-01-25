@@ -1,3 +1,11 @@
 .view{
 	display: none;
 }
+
+.positiveAmount {
+
+}
+
+.negativeAmount {
+	color: #ff0000;
+}
