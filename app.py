@@ -126,3 +126,28 @@ def money_add():
     except sqlite3.IntegrityError:
         return "Integrity error", 400
     return "ok"
+
+@app.route('/api/money/view', methods=['POST'])
+def money_view():
+    """
+    expects POST params:
+    - name
+    - password
+    """
+    ret = password_check(request)
+    if ret:
+        return ret
+
+    user_id = query_db('SELECT id FROM accounts WHERE name=?',
+                       [request.form['name']], one=True)
+    user_id = tuple(user_id)[0]
+    try:
+        transactions = query_db(
+            'SELECT 0-drinks.price as amount, drinks.name as name, pay_logs.timestamp as timestamp FROM pay_logs INNER JOIN drinks ON pay_logs.drink_id=drinks.id WHERE pay_logs.account_id=? UNION SELECT amount, ? as drink_name, timestamp FROM money_logs WHERE account_id=?',
+            [user_id, 'Guthaben aufgeladen', user_id]
+        )
+    except BadRequestKeyError:
+        return "Incomplete request", 400
+    except sqlite3.IntegrityError:
+        return "Integrity error", 400
+    return json.dumps([tuple(row) for row in transactions])
