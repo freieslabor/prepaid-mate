@@ -6,9 +6,6 @@ function newAccount() {
 }
 
 function login() {
-	$('.view').hide();
-	$('#dashboard').show();
-
 	credentials = {
 		name:$('#InputUsername').val(),
 		password:$('#InputPassword').val(),
@@ -18,11 +15,16 @@ function login() {
 		"/api/account/view", credentials,
 	).done(
 		function( data ) {
-			alert("login successful! "+ $.parseJSON(data)[4]);
+			dashboard();
 		}
 	).fail(
 		function (data ) {
-			alert("error: "+ data.responseText);
+			alert("Falscher Nutzername oder Passwort!");
 		}
 	);
+}
+
+function dashboard() {
+	$('.view').hide();
+	$('#dashboard').show();
 }
