@@ -21,8 +21,8 @@ function login() {
 			dashboard(accountData);
 		}
 	).fail( //on failed login attempt alert user and clear login inputs
-		function ( data ) {
-			alert("Falscher Nutzername oder Passwort!");
+		function( errorMessage ) {
+			alert(errorMessage.responseText);
 			$('#start').show();
 			$('#InputUsername').val("");
 			$('#InputPassword').val("");
@@ -33,4 +33,19 @@ function login() {
 function dashboard(accountData) {
 	$('.view').hide();
 	$('#dashboard').show();
+	getPaymentData();
+}
+
+function getPaymentData() {
+	$.post( //fetch transaction log from api
+		"/api/money/view", credentials,
+	).done(//fetched transactionData successfully
+		function( transactionData ) {
+			alert(transactionData)
+		}
+	).fail(//show error message from api
+		function( errorMessage ) {
+			alert(errorMessage.responseText);
+		}
+	);
 }
