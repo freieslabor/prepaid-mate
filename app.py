@@ -33,7 +33,7 @@ def query_db(query, args=(), one=False):
 def password_check(request):
     try:
         user = query_db('SELECT * FROM accounts WHERE name = ?',
-            [request.form['name']], one=True)
+                        [request.form['name']], one=True)
     except KeyError:
         return "incomplete request", 400
 
