@@ -168,3 +168,42 @@ def money_view():
         return 'Database integrity error', 400
 
     return json.dumps([tuple(row) for row in transactions])
+
+@app.route('/api/payment/perform', methods=['POST'])
+def payment_perform():
+    """
+    expects POST params:
+    - superuserpassword
+    - name
+    - drink_barcode
+    """
+    if request.form['superuserpassword'] != \
+        conf.get('DEFAULT', 'superuser-password'):
+        return 'Wrong superuserpassword', 400
+
+    try:
+        user = query_db('SELECT id, saldo FROM accounts WHERE name=?',
+                       [request.form['name']], one=True)
+        user_id, saldo = tuple(user)
+
+        if user_id is None:
+            return 'No such user in database', 400
+
+        drink = query_db('SELECT id, price FROM drinks WHERE barcode=?',
+                       [request.form['drink_barcode']], one=True)
+        drink_id, drink_price = tuple(drink)
+
+        if drink_id is None:
+            return 'No such drink in database', 400
+
+        query_db('INSERT INTO pay_logs (account_id, drink_id, timestamp) VALUES (?, ?, strftime("%s", "now"))',
+                 [user_id, drink_id])
+        query_db('UPDATE accounts SET saldo=saldo-? WHERE id=?',
+                 [drink_price, user_id])
+        get_db().commit()
+    except BadRequestKeyError:
+        return 'Incomplete request', 400
+    except sqlite3.IntegrityError:
+        return 'Database integrity error', 400
+
+    return 'ok'

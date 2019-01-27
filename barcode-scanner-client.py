@@ -52,14 +52,16 @@ class BarcodeScannerClient:
         self.logger.info('user "%s" ordered "%s"', self.user, order_barcode)
         data = self.callback_data
         data['drink_barcode'] = order_barcode
-        data['user_name'] = self.user
+        data['name'] = self.user
         data = urllib.parse.urlencode(data)
         data = data.encode('ascii')
-        self.logger.debug('Calling %s with %s', self.callback_url, data)
+        self.logger.debug('Calling %s with %s', self.pay_callback_url, data)
         try:
-            with urllib.request.urlopen(self.callback_url, data) as f:
+            with urllib.request.urlopen(self.pay_callback_url, data) as f:
                 self.logger.info('callback successfull: %s',
                                  f.read().decode('utf-8'))
+                # FIXME: confirm payment and use text2speech to notify user
+                # about balance
         except urllib.error.URLError as e:
             self.logger.error(e)
 
