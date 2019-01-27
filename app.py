@@ -117,9 +117,15 @@ def money_add():
     if ret:
         return ret
 
+    user_id = query_db('SELECT id FROM accounts WHERE name=?',
+                       [request.form['name']], one=True)
+    user_id = tuple(user_id)[0]
+
     try:
-        test = query_db('UPDATE accounts SET saldo=saldo+? WHERE name=?',
-                        [request.form['money'], request.form['name']])
+        query_db('UPDATE accounts SET saldo=saldo+? WHERE id=?',
+                 [request.form['money'], user_id])
+        query_db('INSERT INTO money_logs (account_id, amount, timestamp) VALUES (?, ?, strftime("%s", "now"))',
+                  [user_id, request.form['money']])
         get_db().commit()
     except BadRequestKeyError:
         return "Incomplete request", 400
