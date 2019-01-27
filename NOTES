@@ -15,14 +15,14 @@ Guthaben-Aufladen:
 3) Benutzer bucht eingeworfene Summe auf sein Prepaid-Konto
 
 [ ] Raspi aussuchen, installieren
-[ ] USB-Hub aussuchen, ausprobieren (als externe Stromversorgung für Scanner)
-[ ] Buzzer aussuchen, testen
-[ ] Holster bauen, anbringen
+[.] USB-Hub aussuchen, ausprobieren (als externe Stromversorgung für Scanner)
+[.] Buzzer aussuchen, testen
+[x] Holster bauen, anbringen
 [ ] Raspi anbringen
-[ ] API definieren
-[ ] API implementieren
-[ ] UI basteln
-[ ] Scanner-Wandhalterung, Raspi verstauen
+[x] API definieren
+[.] API implementieren
+[.] UI basteln
+[.] Scanner-Wandhalterung, Raspi verstauen
 
 DB-Tabelle: drinks
 - id
@@ -57,6 +57,5 @@ API:
 /api/account/view
 /api/money/add
 /api/money/view
-/api/payment/view
 /api/payment/perform
 
