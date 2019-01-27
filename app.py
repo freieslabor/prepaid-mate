@@ -163,7 +163,8 @@ def money_view():
             [user_id, 'Guthaben aufgeladen', user_id]
         )
     except BadRequestKeyError:
-        return "Incomplete request", 400
+        return 'Incomplete request', 400
     except sqlite3.IntegrityError:
-        return "Database integrity error", 400
+        return 'Database integrity error', 400
+
     return json.dumps([tuple(row) for row in transactions])
