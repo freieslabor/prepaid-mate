@@ -38,8 +38,9 @@ class BarcodeScannerClient:
             self.mode = Mode.ORDER
         elif self.mode is Mode.ORDER:
             if barcode == self.reset_barcode:
-                return
-            self.process_barcode_order(barcode)
+                self.logger.info('reset barcode recognized, ignoring order')
+            else:
+                self.process_barcode_order(barcode)
             self.mode = Mode.USER
 
     def process_barcode_user(self, user_barcode):
