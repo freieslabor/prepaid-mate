@@ -36,14 +36,14 @@ def password_check(request):
         user = query_db('SELECT password_hash FROM accounts WHERE name = ?',
                         [request.form['name']], one=True)
     except KeyError:
-        return "Incomplete request", 400
+        return 'Incomplete request', 400
 
     if user is None:
-        return "No such user", 400
+        return 'No such user in database', 400
 
     if not check_password_hash(user['password_hash'],
                                request.form['password']):
-        return "Wrong password", 400
+        return 'Wrong password', 400
 
 @app.route('/api/account/create', methods=['POST'])
 def account_create():
@@ -59,12 +59,13 @@ def account_create():
                  [request.form['name'], password_hash, request.form['barcode']])
         get_db().commit()
     except BadRequestKeyError:
-        return "Incomplete request", 400
+        return 'Incomplete request', 400
     except sqlite3.IntegrityError:
-        return "Database integrity error", 400
+        return 'Database integrity error', 400
     except sqlite3.OperationalError as e:
         return e, 400
-    return "ok"
+
+    return 'ok'
 
 @app.route('/api/account/modify', methods=['POST'])
 def account_modify():
@@ -87,12 +88,13 @@ def account_modify():
                          request.form['barcode'], request.form['name']])
         get_db().commit()
     except BadRequestKeyError:
-        return "Incomplete request", 400
+        return 'Incomplete request', 400
     except sqlite3.IntegrityError:
-        return "Database integrity error", 400
+        return 'Database integrity error', 400
     except sqlite3.OperationalError as e:
         return e, 400
-    return "ok"
+
+    return 'ok'
 
 @app.route('/api/account/view', methods=['POST'])
 def account_view():
@@ -133,12 +135,13 @@ def money_add():
                   [user_id, request.form['money']])
         get_db().commit()
     except BadRequestKeyError:
-        return "Incomplete request", 400
+        return 'Incomplete request', 400
     except sqlite3.IntegrityError:
-        return "Databse integrity error", 400
+        return 'Databse integrity error', 400
     except sqlite3.OperationalError as e:
         return e, 400
-    return "ok"
+
+    return 'ok'
 
 @app.route('/api/money/view', methods=['POST'])
 def money_view():
