@@ -61,6 +61,8 @@ def account_create():
         return "Incomplete request", 400
     except sqlite3.IntegrityError:
         return "Database integrity error", 400
+    except sqlite3.OperationalError as e:
+        return e, 400
     return "ok"
 
 @app.route('/api/account/modify', methods=['POST'])
@@ -87,6 +89,8 @@ def account_modify():
         return "Incomplete request", 400
     except sqlite3.IntegrityError:
         return "Database integrity error", 400
+    except sqlite3.OperationalError as e:
+        return e, 400
     return "ok"
 
 @app.route('/api/account/view', methods=['POST'])
@@ -131,6 +135,8 @@ def money_add():
         return "Incomplete request", 400
     except sqlite3.IntegrityError:
         return "Databse integrity error", 400
+    except sqlite3.OperationalError as e:
+        return e, 400
     return "ok"
 
 @app.route('/api/money/view', methods=['POST'])
