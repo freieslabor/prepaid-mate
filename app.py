@@ -6,15 +6,16 @@ import json
 from flask import Flask, g, request
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import BadRequestKeyError
+from configparser import ConfigParser
 
-
-DATABASE = './db.sqlite'
+conf = ConfigParser()
+conf.read_file(open('./config'))
 app = Flask(__name__)
 
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
-        db = g._database = sqlite3.connect(DATABASE)
+        db = g._database = sqlite3.connect(conf.get('DEFAULT', 'database'))
     db.row_factory = sqlite3.Row
     return db
 

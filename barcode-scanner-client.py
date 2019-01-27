@@ -5,12 +5,9 @@ from enum import Enum, auto
 import urllib.request
 import urllib.parse
 import urllib.error
+from configparser import ConfigParser
 
 from evdev import InputDevice, categorize, ecodes
-
-PASSWORD = 'PROVIDE_PASSWORD_HERE'
-RESET_BARCODE = '123456789'
-DEBUG = False
 
 class Mode(Enum):
     USER = auto()
@@ -18,15 +15,21 @@ class Mode(Enum):
 
 
 class BarcodeScannerClient:
-    def __init__(self, event_path, callback_url, callback_data, debug=False):
-        self.dev = InputDevice(event_path)
-        self.callback_url = callback_url
-        self.callback_data = callback_data
-        self.debug = debug
+    def __init__(self, config_file, conf_section='barcode-scanner-client'):
+        conf = ConfigParser()
+        conf.read_file(open(config_file))
+        self.debug = conf.getboolean(conf_section, 'debug')
+        self.dev = InputDevice(conf.get(conf_section, 'scanner-device'))
+        self.reset_barcode = conf.get(conf_section, 'reset-barcode')
+        self.pay_callback_url = conf.get(conf_section, 'callback')
+        self.callback_data = {
+            'superuserpassword': conf.get('DEFAULT', 'superuser-password'),
+        }
         self.mode = Mode.USER
         self.user = None
 
-        logging.basicConfig(level=logging.DEBUG)
+        loglevel = logging.DEBUG if logging.DEBUG else logging.INFO
+        logging.basicConfig(level=loglevel)
         self.logger = logging.getLogger()
 
     def process_barcode(self, barcode):
@@ -34,7 +37,7 @@ class BarcodeScannerClient:
             self.process_barcode_user(barcode)
             self.mode = Mode.ORDER
         elif self.mode is Mode.ORDER:
-            if barcode == RESET_BARCODE:
+            if barcode == self.reset_barcode:
                 return
             self.process_barcode_order(barcode)
             self.mode = Mode.USER
@@ -78,10 +81,5 @@ class BarcodeScannerClient:
 
 
 if __name__ == '__main__':
-    client = BarcodeScannerClient(
-            '/dev/input/by-path/pci-0000:00:14.0-usb-0:2:1.0-event-kbd',
-            'http://localhost:5000/api/payment/perform',
-            {'password': PASSWORD},
-            debug=DEBUG
-            )
+    client = BarcodeScannerClient('./config')
     client.run()

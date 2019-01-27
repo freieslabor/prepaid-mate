@@ -20,16 +20,20 @@ Now install the Python dependencies via pip inside the virtualenv:
 
     (prepaid-drinks-venv) $ pip install -r requirements.txt
 
-Now start the server:
+Create a config file named `config`.
+See `config.sample` for an example config.
+
+Now start the development server:
 
 .. code-block:: bash
 
     $ flask run
 
-Or start the server in debug mode:
+Or start the development server in debug mode:
 
 .. code-block:: bash
 
     $ FLASK_DEBUG=1 flask run
 
 Now head your browser to `http://localhost:5000/` to start.
+Do not use the development server in a production environment.
