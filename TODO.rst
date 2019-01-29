@@ -13,7 +13,6 @@ ui
 
 backend
 -------
-* check transaction safety
 * /api/payment/perform should return user's balance
 * improve SQL queries
 * extensive logging
