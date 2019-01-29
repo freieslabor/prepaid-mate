@@ -147,12 +147,14 @@ def money_add():
         query_db('INSERT INTO money_logs (account_id, amount, timestamp) VALUES (?, ?, strftime("%s", "now"))',
                   [user_id, request.form['money']])
         get_db().commit()
-    except BadRequestKeyError:
-        return 'Incomplete request', 400
-    except sqlite3.IntegrityError:
-        return 'Databse integrity error', 400
-    except sqlite3.OperationalError as e:
-        return e, 400
+    except Exception as e:
+        get_db().rollback()
+        if isinstance(e, BadRequestKeyError):
+            return 'Incomplete request', 400
+        if isinstance(e, sqlite3.IntegrityError):
+            return 'Databse integrity error', 400
+        if isinstance(e, sqlite3.OperationalError):
+            return e, 400
 
     return 'ok'
 
@@ -214,9 +216,11 @@ def payment_perform():
         query_db('UPDATE accounts SET saldo=saldo-? WHERE id=?',
                  [drink_price, user_id])
         get_db().commit()
-    except BadRequestKeyError:
-        return 'Incomplete request', 400
-    except sqlite3.IntegrityError:
-        return 'Database integrity error', 400
+    except Exception as e:
+        get_db().rollback()
+        if isinstance(e, BadRequestKeyError):
+            return 'Incomplete request', 400
+        if isinstance(e, sqlite3.IntegrityError):
+            return 'Database integrity error', 400
 
     return 'ok'
