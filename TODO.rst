@@ -16,7 +16,6 @@ backend
 * check transaction safety
 * make sure saldo does not get negative
 * /api/payment/perform should return user's balance
-* do not accept known order barcode as user barcode
 * improve SQL queries
 * extensive logging
 * tests

@@ -54,6 +54,11 @@ def account_create():
     - barcode
     """
     try:
+        drink_barcode = query_db('SELECT barcode FROM drinks WHERE barcode= ?',
+                                  [request.form['barcode']], one=True)
+        if drink_barcode is not None:
+            return 'This barcode is already used for a drink', 400
+
         password_hash = generate_password_hash(request.form['password'])
         query_db('INSERT INTO accounts (name, password_hash, barcode, saldo) VALUES (?, ?, ?, 0)',
                  [request.form['name'], password_hash, request.form['barcode']])
