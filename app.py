@@ -209,9 +209,9 @@ def payment_perform():
 
         drink = query_db('SELECT id, price FROM drinks WHERE barcode=?',
                        [request.form['drink_barcode']], one=True)
-        drink_id, drink_price = tuple(drink)
-
-        if drink_id is None:
+        try:
+            drink_id, drink_price = tuple(drink)
+        except TypeError:
             return 'No such drink in database', 400
 
         query_db('INSERT INTO pay_logs (account_id, drink_id, timestamp) VALUES (?, ?, strftime("%s", "now"))',
