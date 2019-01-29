@@ -214,6 +214,9 @@ def payment_perform():
         except TypeError:
             return 'No such drink in database', 400
 
+        if saldo - drink_price < 0:
+            return 'insufficient funds', 400
+
         query_db('INSERT INTO pay_logs (account_id, drink_id, timestamp) VALUES (?, ?, strftime("%s", "now"))',
                  [user_id, drink_id])
         query_db('UPDATE accounts SET saldo=saldo-? WHERE id=?',

@@ -14,7 +14,6 @@ ui
 backend
 -------
 * check transaction safety
-* make sure saldo does not get negative
 * /api/payment/perform should return user's balance
 * improve SQL queries
 * extensive logging
