@@ -12,6 +12,14 @@ conf = ConfigParser()
 conf.read_file(open('./config'))
 app = Flask(__name__)
 
+def sql_integrity_error(e):
+    unique_error_prefix = 'UNIQUE constraint failed: '
+    if e.args[0].startswith(unique_error_prefix):
+        field = e.args[0].replace(unique_error_prefix, '')
+        _, field = field.split('.', 1)
+        return '{} already exists'.format(field), 400
+    return 'Database integrity error', 400
+
 def get_db():
     db = getattr(g, '_database', None)
     if db is None:
@@ -65,8 +73,8 @@ def account_create():
         get_db().commit()
     except BadRequestKeyError:
         return 'Incomplete request', 400
-    except sqlite3.IntegrityError:
-        return 'Database integrity error', 400
+    except sqlite3.IntegrityError as e:
+        return sql_integrity_error(e)
     except sqlite3.OperationalError as e:
         return e, 400
 
