@@ -189,7 +189,7 @@ def payment_perform():
     """
     expects POST params:
     - superuserpassword
-    - name
+    - user_barcode
     - drink_barcode
     """
     if request.form['superuserpassword'] != \
@@ -197,9 +197,12 @@ def payment_perform():
         return 'Wrong superuserpassword', 400
 
     try:
-        user = query_db('SELECT id, saldo FROM accounts WHERE name=?',
-                       [request.form['name']], one=True)
-        user_id, saldo = tuple(user)
+        user = query_db('SELECT id, saldo FROM accounts WHERE barcode=?',
+                       [request.form['user_barcode']], one=True)
+        try:
+            user_id, saldo = tuple(user)
+        except TypeError:
+            return 'Barcode does not belong to a user', 400
 
         if user_id is None:
             return 'No such user in database', 400
