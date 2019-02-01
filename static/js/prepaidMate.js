@@ -45,6 +45,35 @@ function dashboard(accountData) {
 	getCurrentBalance(accountData);
 }
 
+function addBalance() {
+	var balance = prompt("Aufgeladen:", "0.00");
+
+	if (balance == null || balance == "") {
+
+	} else {
+		var balanceData = {
+			name: credentials.name,
+			password: credentials.password,
+			money: balance * 100 //money has to be in cents
+		}
+
+		$.post( //pass login credentials to api
+			"/api/money/add", balanceData,
+		).done( //on successful login call dashboard()
+			function( transactionData ) {
+
+			}
+		).fail( //on failed login attempt alert user and clear login inputs
+			function( errorMessage ) {
+				alert(errorMessage.responseText);
+				$('#start').show();
+				$('#InputUsername').val("");
+				$('#InputPassword').val("");
+			}
+		);
+	}
+}
+
 function getCurrentBalance(accountData) {
 	currentBalance = jQuery.parseJSON(accountData);
 	$('#userBalance').html(currentBalance[2] / 100 + "&euro;");
