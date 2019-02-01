@@ -1,4 +1,5 @@
 $('#start').show();
+$('#InputUsername').focus();
 
 function newAccount() {
 	$('.view').hide();
