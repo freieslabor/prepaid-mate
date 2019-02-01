@@ -46,7 +46,7 @@ function dashboard(accountData) {
 }
 
 function addBalance() {
-	var balance = prompt("Aufgeladen:", "0.00");
+	var balance = prompt("Aufladen:", "0.00");
 	//Regex 1 or more digits / comma or dot / exactly 2 digits
 	var regexBalance = new RegExp(/^(\d+((\,|\.)\d{2})?)$/);
 
@@ -62,7 +62,8 @@ function addBalance() {
 			"/api/money/add", balanceData,
 		).done( //on successful login call dashboard()
 			function( transactionData ) {
-
+				$('#transactionTableBody').empty();
+				login();
 			}
 		).fail( //on failed login attempt alert user and clear login inputs
 			function( errorMessage ) {
