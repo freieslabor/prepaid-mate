@@ -174,7 +174,7 @@ def money_view():
     user_id = tuple(user_id)[0]
     try:
         transactions = query_db(
-            'SELECT 0-drinks.price as amount, drinks.name as name, pay_logs.timestamp as timestamp FROM pay_logs INNER JOIN drinks ON pay_logs.drink_id=drinks.id WHERE pay_logs.account_id=? UNION SELECT amount, ? as drink_name, timestamp FROM money_logs WHERE account_id=?',
+            'SELECT 0-drinks.price as amount, drinks.name as name, pay_logs.timestamp as timestamp FROM pay_logs INNER JOIN drinks ON pay_logs.drink_id=drinks.id WHERE pay_logs.account_id=? UNION SELECT amount, ? as drink_name, timestamp FROM money_logs WHERE account_id=? ORDER BY timestamp',
             [user_id, 'Guthaben aufgeladen', user_id]
         )
     except BadRequestKeyError:
