@@ -1,6 +1,13 @@
 $('#start').show();
 $('#InputUsername').focus();
 
+// login on enter keypress
+$(document).keypress(function(event) {
+	if (event.which == 13) {
+		login();
+    }
+});
+
 function newAccount() {
 	$('.view').hide();
 	$('#newAccount').show();
