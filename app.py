@@ -142,10 +142,15 @@ def money_add():
     user_id = tuple(user_id)[0]
 
     try:
+        money = int(request.form['money'])
+    except ValueError:
+        return 'Money must be specified in cents', 400
+
+    try:
         query_db('UPDATE accounts SET saldo=saldo+? WHERE id=?',
-                 [request.form['money'], user_id])
+                 [money, user_id])
         query_db('INSERT INTO money_logs (account_id, amount, timestamp) VALUES (?, ?, strftime("%s", "now"))',
-                  [user_id, request.form['money']])
+                  [user_id, money])
         get_db().commit()
     except Exception as e:
         get_db().rollback()
