@@ -39,7 +39,7 @@ function dashboard(accountData) {
 
 function getCurrentBalance(accountData) {
 	currentBalance = jQuery.parseJSON(accountData);
-	$('#userBalance').html(currentBalance[2] + "&euro;");
+	$('#userBalance').html(currentBalance[2] / 100 + "&euro;");
 }
 
 function getPaymentData() {
