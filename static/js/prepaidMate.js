@@ -47,10 +47,11 @@ function dashboard(accountData) {
 
 function addBalance() {
 	var balance = prompt("Aufgeladen:", "0.00");
+	//Regex 1 or more digits / comma or dot / exactly 2 digits
+	var regexBalance = new RegExp(/^(\d+((\,|\.)\d{2})?)$/);
 
-	if (balance == null || balance == "") {
-
-	} else {
+	if (regexBalance.test(balance)) {
+		balance = balance.replace(',', '.'); //balance can not contain ','
 		var balanceData = {
 			name: credentials.name,
 			password: credentials.password,
@@ -71,6 +72,8 @@ function addBalance() {
 				$('#InputPassword').val("");
 			}
 		);
+	} else {
+
 	}
 }
 
