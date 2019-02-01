@@ -6,9 +6,7 @@ todo
 
 ui
 --
-* login: enable submit via enter key
 * dashboard: add link for json export
-* charge money
 * account modification
 * account creation (with disclaimer)
 
