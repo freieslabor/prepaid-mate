@@ -41,17 +41,20 @@ def query_db(query, args=(), one=False):
 
 def password_check(request):
     try:
-        user = query_db('SELECT password_hash FROM accounts WHERE name = ?',
+        account = query_db('SELECT id, password_hash FROM accounts WHERE name = ?',
                         [request.form['name']], one=True)
     except KeyError:
-        return 'Incomplete request', 400
+        raise Exception('Incomplete request')
 
-    if user is None:
-        return 'No such user in database', 400
+    try:
+        account_id, password_hash = tuple(account)
+    except TypeError:
+        raise Exception('No such account in database')
 
-    if not check_password_hash(user['password_hash'],
-                               request.form['password']):
-        return 'Wrong password', 400
+    if not check_password_hash(password_hash, request.form['password']):
+        raise Exception('Wrong password')
+
+    return account_id
 
 @app.route('/api/account/create', methods=['POST'])
 def account_create():
@@ -90,9 +93,10 @@ def account_modify():
     - new_password
     - barcode
     """
-    ret = password_check(request)
-    if ret:
-        return ret
+    try:
+        password_check(request)
+    except Exception as e:
+        return e.args[0], 400
 
     try:
         new_password_hash = generate_password_hash(request.form['new_password'])
@@ -116,14 +120,15 @@ def account_view():
     - name
     - password
     """
-    ret = password_check(request)
-    if ret:
-        return ret
+    try:
+        password_check(request)
+    except Exception as e:
+        return e.args[0], 400
 
-    user = query_db('SELECT name, barcode, saldo FROM accounts WHERE name = ?',
+    account = query_db('SELECT name, barcode, saldo FROM accounts WHERE name = ?',
                     [request.form['name']], one=True)
 
-    return json.dumps(tuple(user))
+    return json.dumps(tuple(account))
 
 @app.route('/api/money/add', methods=['POST'])
 def money_add():
@@ -133,13 +138,10 @@ def money_add():
     - password
     - money
     """
-    ret = password_check(request)
-    if ret:
-        return ret
-
-    user_id = query_db('SELECT id FROM accounts WHERE name=?',
-                       [request.form['name']], one=True)
-    user_id = tuple(user_id)[0]
+    try:
+        account_id = password_check(request)
+    except Exception as e:
+        return e.args[0], 400
 
     try:
         money = int(request.form['money'])
@@ -148,9 +150,9 @@ def money_add():
 
     try:
         query_db('UPDATE accounts SET saldo=saldo+? WHERE id=?',
-                 [money, user_id])
+                 [money, account_id])
         query_db('INSERT INTO money_logs (account_id, amount, timestamp) VALUES (?, ?, strftime("%s", "now"))',
-                  [user_id, money])
+                  [account_id, money])
         get_db().commit()
     except Exception as e:
         get_db().rollback()
@@ -170,17 +172,15 @@ def money_view():
     - name
     - password
     """
-    ret = password_check(request)
-    if ret:
-        return ret
+    try:
+        account_id = password_check(request)
+    except Exception as e:
+        return e.args[0], 400
 
-    user_id = query_db('SELECT id FROM accounts WHERE name=?',
-                       [request.form['name']], one=True)
-    user_id = tuple(user_id)[0]
     try:
         transactions = query_db(
             'SELECT 0-drinks.price as amount, drinks.name as name, pay_logs.timestamp as timestamp FROM pay_logs INNER JOIN drinks ON pay_logs.drink_id=drinks.id WHERE pay_logs.account_id=? UNION SELECT amount, ? as drink_name, timestamp FROM money_logs WHERE account_id=? ORDER BY timestamp DESC',
-            [user_id, 'Guthaben aufgeladen', user_id]
+            [account_id, 'Guthaben aufgeladen', account_id]
         )
     except BadRequestKeyError:
         return 'Incomplete request', 400
@@ -194,7 +194,7 @@ def payment_perform():
     """
     expects POST params:
     - superuserpassword
-    - user_barcode
+    - account_barcode
     - drink_barcode
     """
     if request.form['superuserpassword'] != \
@@ -202,15 +202,15 @@ def payment_perform():
         return 'Wrong superuserpassword', 400
 
     try:
-        user = query_db('SELECT id, saldo FROM accounts WHERE barcode=?',
-                       [request.form['user_barcode']], one=True)
+        account = query_db('SELECT id, saldo FROM accounts WHERE barcode=?',
+                       [request.form['account_barcode']], one=True)
         try:
-            user_id, saldo = tuple(user)
+            account_id, saldo = tuple(account)
         except TypeError:
-            return 'Barcode does not belong to a user', 400
+            return 'Barcode does not belong to an account', 400
 
-        if user_id is None:
-            return 'No such user in database', 400
+        if account_id is None:
+            return 'No such account in database', 400
 
         drink = query_db('SELECT id, price FROM drinks WHERE barcode=?',
                        [request.form['drink_barcode']], one=True)
@@ -223,9 +223,9 @@ def payment_perform():
             return 'insufficient funds', 400
 
         query_db('INSERT INTO pay_logs (account_id, drink_id, timestamp) VALUES (?, ?, strftime("%s", "now"))',
-                 [user_id, drink_id])
+                 [account_id, drink_id])
         query_db('UPDATE accounts SET saldo=saldo-? WHERE id=?',
-                 [drink_price, user_id])
+                 [drink_price, account_id])
         get_db().commit()
     except Exception as e:
         get_db().rollback()

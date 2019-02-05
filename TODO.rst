@@ -14,7 +14,6 @@ ui
 backend
 -------
 * /api/payment/perform should return user's balance
-* improve SQL queries
 * extensive logging
 * tests
 

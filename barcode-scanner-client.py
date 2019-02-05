@@ -10,7 +10,7 @@ from configparser import ConfigParser
 from evdev import InputDevice, categorize, ecodes
 
 class Mode(Enum):
-    USER = auto()
+    ACCOUNT = auto()
     ORDER = auto()
 
 
@@ -25,34 +25,34 @@ class BarcodeScannerClient:
         self.callback_data = {
             'superuserpassword': conf.get('DEFAULT', 'superuser-password'),
         }
-        self.mode = Mode.USER
-        self.user = None
+        self.mode = Mode.ACCOUNT
+        self.account = None
 
         loglevel = logging.DEBUG if logging.DEBUG else logging.INFO
         logging.basicConfig(level=loglevel)
         self.logger = logging.getLogger()
 
     def process_barcode(self, barcode):
-        if self.mode is Mode.USER:
-            self.process_barcode_user(barcode)
+        if self.mode is Mode.ACCOUNT:
+            self.process_barcode_account(barcode)
             self.mode = Mode.ORDER
         elif self.mode is Mode.ORDER:
             if barcode == self.reset_barcode:
                 self.logger.info('reset barcode recognized, ignoring order')
             else:
                 self.process_barcode_order(barcode)
-            self.mode = Mode.USER
+            self.mode = Mode.ACCOUNT
 
-    def process_barcode_user(self, user_barcode):
-        self.user = user_barcode
-        self.logger.info("user barcode: %s", self.user)
+    def process_barcode_account(self, account_barcode):
+        self.account = account_barcode
+        self.logger.info("account barcode: %s", self.account)
 
     def process_barcode_order(self, order_barcode):
-        assert self.user is not None
-        self.logger.info('user "%s" ordered "%s"', self.user, order_barcode)
+        assert self.account is not None
+        self.logger.info('account "%s" ordered "%s"', self.account, order_barcode)
         data = self.callback_data
         data['drink_barcode'] = order_barcode
-        data['name'] = self.user
+        data['name'] = self.account
         data = urllib.parse.urlencode(data)
         data = data.encode('ascii')
         self.logger.debug('Calling %s with %s', self.pay_callback_url, data)
