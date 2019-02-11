@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import os
 import sqlite3
 import json
 
@@ -9,7 +10,8 @@ from werkzeug.exceptions import BadRequestKeyError
 from configparser import ConfigParser
 
 conf = ConfigParser()
-conf.read_file(open('./config'))
+conf_file = os.environ.get('CONFIG', './config')
+conf.read_file(open(conf_file))
 app = Flask(__name__)
 
 def sql_integrity_error(e):
