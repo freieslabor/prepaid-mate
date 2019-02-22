@@ -6,6 +6,7 @@ import urllib.request
 import urllib.parse
 import urllib.error
 from configparser import ConfigParser
+import select
 
 from evdev import InputDevice, categorize, ecodes
 
@@ -19,7 +20,8 @@ class BarcodeScannerClient:
         conf = ConfigParser()
         conf.read_file(open(config_file))
         self.debug = conf.getboolean(conf_section, 'debug')
-        self.dev = InputDevice(conf.get(conf_section, 'scanner-device'))
+        self.scan_dev = InputDevice(conf.get(conf_section, 'scanner-device'))
+        self.rfid_dev = InputDevice(conf.get(conf_section, 'rfid-device'))
         self.reset_barcode = conf.get(conf_section, 'reset-barcode')
         self.pay_callback_url = conf.get(conf_section, 'callback')
         self.callback_data = {
@@ -67,20 +69,35 @@ class BarcodeScannerClient:
 
     def run(self):
         barcode = ''
+        rfid = ''
         try:
             if not self.debug:
-                self.dev.grab()
-            for input_ in self.dev.read_loop():
-                event = categorize(input_)
-                if input_.type == ecodes.EV_KEY and event.keystate == 1:
-                    if event.keycode[4:].isdigit():
-                        barcode += event.keycode[4:]
-                    elif event.keycode == 'KEY_ENTER':
-                        self.process_barcode(barcode)
-                        barcode = ''
+                self.scan_dev.grab()
+                self.rfid_dev.grab()
+
+            while True:
+                readable_dev, _, _ = select.select([self.scan_dev, self.rfid_dev], [], [])
+                for dev in readable_dev:
+                    input_ = dev.read_one()
+                    event = categorize(input_)
+                    if input_.type == ecodes.EV_KEY and event.keystate == 1:
+                        if event.keycode[4:].isdigit():
+                            if dev == self.scan_dev:
+                                barcode += event.keycode[4:]
+                            elif dev == self.rfid_dev:
+                                rfid += event.keycode[4:]
+dev == self.rfid_dev:                        elif event.keycode == 'KEY_ENTER':
+                            if dev == self.scan_dev:
+                                self.process_barcode(barcode)
+                                barcode = ''
+                            elif dev == self.rfid_dev:
+                                self.process_barcode(rfid)
+                                rfid = ''
         finally:
             if not self.debug:
-                self.dev.ungrab()
+                self.scan_dev.ungrab()
+                self.rfid_dev.ungrab()
+        print("ciao")
 
 
 if __name__ == '__main__':
