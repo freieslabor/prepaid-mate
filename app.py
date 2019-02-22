@@ -93,7 +93,7 @@ def account_modify():
     - password
     - new_name
     - new_password
-    - barcode
+    - new_barcode
     """
     try:
         password_check(request)
@@ -104,7 +104,7 @@ def account_modify():
         new_password_hash = generate_password_hash(request.form['new_password'])
         test = query_db('UPDATE accounts SET name=?, password_hash=?, barcode=? WHERE name=?',
                         [request.form['new_name'], new_password_hash,
-                         request.form['barcode'], request.form['name']])
+                         request.form['new_barcode'], request.form['name']])
         get_db().commit()
     except BadRequestKeyError:
         return 'Incomplete request', 400

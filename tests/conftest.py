@@ -9,10 +9,12 @@ import sqlite3
 from configparser import ConfigParser
 
 import pytest
+import requests
 
 START_TIMEOUT = 5
 SAMPLE_CONFIG = './config.sample'
 DB = './db.sqlite'
+pytest.API_URL = 'http://127.0.0.1:5000/api'
 
 def truncate_tables(db_fh, tables):
         db = sqlite3.connect(db_fh.name)
@@ -78,3 +80,10 @@ def flask_server():
     # clean up tempfiles by closing them
     test_db.close()
     test_config.close()
+
+@pytest.fixture(scope='function')
+def create_account():
+    data = {'name': 'foo', 'password':'bar', 'barcode': '123'}
+    requests.post('{}/account/create'.format(pytest.API_URL), data=data)
+    return data
+
