@@ -1,2 +1,4 @@
 pytest
 requests
+codecov
+-r requirements.txt
