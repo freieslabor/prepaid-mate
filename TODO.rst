@@ -18,8 +18,8 @@ backend
 * tests
 * password reset script
 
-barcode-scanner-client
-----------------------
+scanner-client
+--------------
 * timeout after user identification
 * confirmation sounds
 * current balance text2speech

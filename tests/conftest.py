@@ -52,14 +52,14 @@ def scanner_client():
     rfid_event = '/dev/input/event14'
     # FIXME: set callback using pytest.API_URL
     test_config, config = create_test_config(
-        'barcode-scanner-client',
+        'scanner-client',
         scanner_device=barcode_event,
         rfid_device=rfid_event
     )
     env = os.environ.copy()
     env['CONFIG'] = test_config.name
     # run client
-    cmd = 'umockdev-run -d {path}rfid.umockdev -i {barcode_event}={path}rfid.ioctl -e {barcode_event}={path}rfid.events -d {path}barcode.umockdev -i {rfid_event}={path}barcode.ioctl -e {rfid_event}={path}barcode.events -- python barcode-scanner-client.py' \
+    cmd = 'umockdev-run -d {path}rfid.umockdev -i {barcode_event}={path}rfid.ioctl -e {barcode_event}={path}rfid.events -d {path}barcode.umockdev -i {rfid_event}={path}barcode.ioctl -e {rfid_event}={path}barcode.events -- python scanner-client.py' \
         .format(
             path='tests/umockdev/',
             barcode_event=barcode_event,

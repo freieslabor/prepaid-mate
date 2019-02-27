@@ -17,7 +17,7 @@ class Mode(Enum):
 
 
 class BarcodeScannerClient:
-    def __init__(self, config_file, conf_section='barcode-scanner-client'):
+    def __init__(self, config_file, conf_section='scanner-client'):
         conf = ConfigParser()
         conf.read_file(open(config_file))
         self.debug = conf.getboolean(conf_section, 'debug')
