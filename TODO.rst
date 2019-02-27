@@ -20,6 +20,7 @@ backend
 
 scanner-client
 --------------
+* use requests instead of urllib
 * timeout after user identification
 * confirmation sounds
 * current balance text2speech
