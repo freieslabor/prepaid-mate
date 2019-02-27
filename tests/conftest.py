@@ -1,9 +1,9 @@
 import subprocess
+import logging
 import os
 import shutil
 import signal
 import tempfile
-from datetime import datetime, timedelta
 import re
 import sqlite3
 from configparser import ConfigParser
@@ -46,18 +46,56 @@ def create_test_config(section, **options):
         tmp_config.seek(0)
         return tmp_config, sample_cfg
 
+def start_process_operational(cmd, cfg, operational_re, cmd_name, env=os.environ.copy(), timeout=5):
+    logger = logging.getLogger(cmd_name)
+
+    env['CONFIG'] = cfg.name
+
+    # run process
+    try:
+        proc = subprocess.Popen(cmd, shell=True, env=env,
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.PIPE,
+                                preexec_fn=os.setsid)
+
+        # wait until process reached operational state
+        for line in iter(proc.stderr.readline, ''):
+            line_dec = line.decode('utf-8')
+            logger.info(line_dec.strip())
+            if re.search(operational_re, line_dec):
+                break
+    except KeyboardInterrupt:
+        # make sure all subprocess are killed first
+        os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+        raise
+
+    return proc
+
+def end_process(proc, cmd_name):
+    logger = logging.getLogger(cmd_name)
+    # kill process group
+    os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+    # log output for test debugging
+    stdout, stderr = proc.communicate()
+    for sout in stdout.decode('utf-8').split('\n'):
+        if sout.strip():
+            logger.info(sout)
+    for serr in stderr.decode('utf-8').split('\n'):
+        if serr.strip():
+            logger.warning(serr)
+
 @pytest.fixture(scope='function')
-def scanner_client():
+def scanner_client(caplog):
+    # decrease log level to be able to debug scanner client
+    caplog.set_level(logging.INFO)
+    name = 'scanner client'
     barcode_event = '/dev/input/event13'
     rfid_event = '/dev/input/event14'
-    # FIXME: set callback using pytest.API_URL
     test_config, config = create_test_config(
         'scanner-client',
         scanner_device=barcode_event,
         rfid_device=rfid_event
     )
-    env = os.environ.copy()
-    env['CONFIG'] = test_config.name
     # run client
     cmd = 'umockdev-run -d {path}rfid.umockdev -i {barcode_event}={path}rfid.ioctl -e {barcode_event}={path}rfid.events -d {path}barcode.umockdev -i {rfid_event}={path}barcode.ioctl -e {rfid_event}={path}barcode.events -- python scanner-client.py' \
         .format(
@@ -65,70 +103,33 @@ def scanner_client():
             barcode_event=barcode_event,
             rfid_event=rfid_event
         )
-    proc = subprocess.Popen(cmd, shell=True, env=env,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            preexec_fn=os.setsid)
-
-    # wait until client is running
-    client_start = datetime.now()
-    for line in iter(proc.stderr.readline, ''):
-        if datetime.now() > client_start + timedelta(seconds=START_TIMEOUT):
-            raise Exception('Client did not come up as expected')
-        if line:
-            print('client startup: ', line.decode('utf-8')[:-1])
-        if line.strip().endswith(b'"0016027465" ordered "42254300"'):
-            break
+    proc = start_process_operational(cmd, test_config, 'Waiting for input..', name)
 
     yield config
 
-    # kill client
-    os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
-    # print output for test debugging
-    stdout, stderr = proc.communicate()
-    for sout in stdout.decode('utf-8').split('\n'):
-        print('stdout: {}'.format(sout))
-    for serr in stderr.decode('utf-8').split('\n'):
-        print('stderr: {}'.format(serr))
+    end_process(proc, name)
 
     # clean up tempfile by closing it
     test_config.close()
 
 @pytest.fixture(scope='function')
-def flask_server():
+def flask_server(caplog, pytestconfig):
+    # decrease log level to be able to debug flask server
+    caplog.set_level(logging.INFO)
+    name = 'flask server'
     test_db = create_test_db()
     test_config, config = create_test_config('DEFAULT', database=test_db.name)
 
     env = os.environ.copy()
-    env['CONFIG'] = test_config.name
-    env['FLASK_DEBUG'] = '1'
+    if pytestconfig.getoption("verbose"):
+        env['FLASK_DEBUG'] = '1'
 
-    # run server
-    proc = subprocess.Popen('flask run --without-threads', shell=True, env=env,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            preexec_fn=os.setsid)
-
-    # wait until server is running
-    server_start = datetime.now()
-    for line in iter(proc.stderr.readline, ''):
-        if datetime.now() > server_start + timedelta(seconds=START_TIMEOUT):
-            raise Exception('Server did not come up as expected')
-        if line:
-            print('server startup: ', line.decode('utf-8')[:-1])
-        if line.startswith(b' * Running on'):
-            break
+    proc = start_process_operational('flask run --without-threads --no-reload', test_config,
+                                     ' \* Running on', name, env=env)
 
     yield config
 
-    # kill server
-    os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
-    # print output for test debugging
-    stdout, stderr = proc.communicate()
-    for sout in stdout.decode('utf-8').split('\n'):
-        print('stdout: {}'.format(sout))
-    for serr in stderr.decode('utf-8').split('\n'):
-        print('stderr: {}'.format(serr))
+    end_process(proc, name)
 
     # clean up tempfiles by closing them
     test_db.close()
