@@ -45,6 +45,8 @@ def password_check(request):
     try:
         account = query_db('SELECT id, password_hash FROM accounts WHERE name = ?',
                         [request.form['name']], one=True)
+        if 'password' not in request.form:
+            raise KeyError
     except KeyError:
         raise Exception('Incomplete request')
 
@@ -66,6 +68,7 @@ def account_create():
     - password
     - barcode
     """
+
     try:
         drink_barcode = query_db('SELECT barcode FROM drinks WHERE barcode= ?',
                                   [request.form['barcode']], one=True)
@@ -75,6 +78,12 @@ def account_create():
         password_hash = generate_password_hash(request.form['password'])
         query_db('INSERT INTO accounts (name, password_hash, barcode, saldo) VALUES (?, ?, ?, 0)',
                  [request.form['name'], password_hash, request.form['barcode']])
+
+        if request.form['name'] == '' or request.form['password'] == '' \
+            or request.form['barcode'] == '':
+            get_db().rollback()
+            raise BadRequestKeyError
+
         get_db().commit()
     except BadRequestKeyError:
         return 'Incomplete request', 400
@@ -105,6 +114,12 @@ def account_modify():
         test = query_db('UPDATE accounts SET name=?, password_hash=?, barcode=? WHERE name=?',
                         [request.form['new_name'], new_password_hash,
                          request.form['new_barcode'], request.form['name']])
+
+        if request.form['new_name'] == '' or request.form['new_password'] == '' \
+            or request.form['new_barcode'] == '':
+            get_db().rollback()
+            raise BadRequestKeyError
+
         get_db().commit()
     except BadRequestKeyError:
         return 'Incomplete request', 400
@@ -146,11 +161,14 @@ def money_add():
         return e.args[0], 400
 
     try:
-        money = int(request.form['money'])
-    except ValueError:
-        return 'Money must be specified in cents', 400
+        try:
+            money = int(request.form['money'])
+        except ValueError:
+            return 'Money must be specified in cents', 400
 
-    try:
+        if money <= 0:
+            return 'Zero/negative money given', 400
+
         query_db('UPDATE accounts SET saldo=saldo+? WHERE id=?',
                  [money, account_id])
         query_db('INSERT INTO money_logs (account_id, amount, timestamp) VALUES (?, ?, strftime("%s", "now"))',
@@ -158,10 +176,10 @@ def money_add():
         get_db().commit()
     except Exception as e:
         get_db().rollback()
-        if isinstance(e, BadRequestKeyError):
+        if isinstance(e, (BadRequestKeyError, KeyError)):
             return 'Incomplete request', 400
         if isinstance(e, sqlite3.IntegrityError):
-            return 'Databse integrity error', 400
+            return 'Database integrity error', 400
         if isinstance(e, sqlite3.OperationalError):
             return e, 400
 
@@ -216,13 +234,14 @@ def payment_perform():
 
         drink = query_db('SELECT id, price FROM drinks WHERE barcode=?',
                        [request.form['drink_barcode']], one=True)
+        print("drink_barcode = " + request.form['drink_barcode'])
         try:
             drink_id, drink_price = tuple(drink)
         except TypeError:
             return 'No such drink in database', 400
 
         if saldo - drink_price < 0:
-            return 'insufficient funds', 400
+            return 'Insufficient funds', 400
 
         query_db('INSERT INTO pay_logs (account_id, drink_id, timestamp) VALUES (?, ?, strftime("%s", "now"))',
                  [account_id, drink_id])
