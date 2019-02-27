@@ -105,7 +105,7 @@ def scanner_client(caplog):
         )
     proc = start_process_operational(cmd, test_config, 'Waiting for input..', name)
 
-    yield config
+    yield config, proc
 
     end_process(proc, name)
 
