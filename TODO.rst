@@ -16,6 +16,7 @@ backend
 * /api/payment/perform should return user's balance
 * extensive logging
 * tests
+* password reset script
 
 barcode-scanner-client
 ----------------------
