@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import logging
+import os
 from enum import Enum, auto
 import urllib.request
 import urllib.parse
@@ -75,6 +76,8 @@ class BarcodeScannerClient:
                 self.scan_dev.grab()
                 self.rfid_dev.grab()
 
+            self.logger.info('Waiting for input..')
+
             while True:
                 readable_dev, _, _ = select.select([self.scan_dev, self.rfid_dev], [], [])
                 for dev in readable_dev:
@@ -86,7 +89,7 @@ class BarcodeScannerClient:
                                 barcode += event.keycode[4:]
                             elif dev == self.rfid_dev:
                                 rfid += event.keycode[4:]
-dev == self.rfid_dev:                        elif event.keycode == 'KEY_ENTER':
+                        elif event.keycode == 'KEY_ENTER':
                             if dev == self.scan_dev:
                                 self.process_barcode(barcode)
                                 barcode = ''
@@ -101,5 +104,6 @@ dev == self.rfid_dev:                        elif event.keycode == 'KEY_ENTER':
 
 
 if __name__ == '__main__':
-    client = BarcodeScannerClient('./config')
+    conf_file = os.environ.get('CONFIG', './config')
+    client = BarcodeScannerClient(conf_file)
     client.run()
