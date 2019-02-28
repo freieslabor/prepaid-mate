@@ -1,5 +1,9 @@
 # EVEMU 1.2
 # device /dev/input/event14
+# events are replayed as soon as umockdev-run is called, but we need a delay.
+# The rfid events need to come in first, then the barcode events.
+E: 1551210666.847496 0004 0004 458785
+# Now start with the interesting barcode
 E: 1551210668.847496 0004 0004 458785
 E: 1551210668.847496 0001 0005 1
 E: 1551210668.847496 0000 0000 0

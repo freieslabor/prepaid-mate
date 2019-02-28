@@ -58,7 +58,7 @@ class BarcodeScannerClient:
         data['name'] = self.account
         data = urllib.parse.urlencode(data)
         data = data.encode('ascii')
-        self.logger.debug('Calling %s with %s', self.pay_callback_url, data)
+        self.logger.debug('calling %s with %s', self.pay_callback_url, data)
         try:
             with urllib.request.urlopen(self.pay_callback_url, data) as f:
                 self.logger.info('callback successfull: %s',

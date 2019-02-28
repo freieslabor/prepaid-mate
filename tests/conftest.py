@@ -14,7 +14,7 @@ import requests
 START_TIMEOUT = 5
 SAMPLE_CONFIG = './config.sample'
 DB = './db.sqlite'
-pytest.API_URL = 'http://127.0.0.1:5000/api'
+pytest.API_URL = 'http://localhost:5000/api'
 
 def truncate_tables(db_fh, tables):
         db = sqlite3.connect(db_fh.name)
@@ -63,7 +63,6 @@ def start_process_operational(cmd, cfg, operational_re, cmd_name, env=os.environ
         for line in iter(proc.stderr.readline, ''):
             line_dec = line.decode('utf-8')
             logger.info(line_dec.strip())
-            print(line_dec.strip())
             if re.search(operational_re, line_dec):
                 break
     except KeyboardInterrupt:
@@ -82,11 +81,10 @@ def end_process(proc, cmd_name):
     for sout in stdout.decode('utf-8').split('\n'):
         if sout.strip():
             logger.info(sout)
-            print(sout)
+
     for serr in stderr.decode('utf-8').split('\n'):
         if serr.strip():
             logger.warning(serr)
-            print(serr)
 
 @pytest.fixture(scope='function')
 def scanner_client(caplog):
