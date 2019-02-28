@@ -1,3 +1,6 @@
+import pytest
+
+#@pytest.mark.skip(reason="client does not come up in tracis")
 def test_client(flask_server, scanner_client):
     expected_out = [
         'account barcode: 0016027465',

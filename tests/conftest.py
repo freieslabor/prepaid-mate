@@ -48,6 +48,7 @@ def create_test_config(section, **options):
 
 def start_process_operational(cmd, cfg, operational_re, cmd_name, env=os.environ.copy(), timeout=5):
     logger = logging.getLogger(cmd_name)
+    logger.setLevel(10)
 
     env['CONFIG'] = cfg.name
 
@@ -62,6 +63,7 @@ def start_process_operational(cmd, cfg, operational_re, cmd_name, env=os.environ
         for line in iter(proc.stderr.readline, ''):
             line_dec = line.decode('utf-8')
             logger.info(line_dec.strip())
+            print(line_dec.strip())
             if re.search(operational_re, line_dec):
                 break
     except KeyboardInterrupt:
@@ -80,9 +82,11 @@ def end_process(proc, cmd_name):
     for sout in stdout.decode('utf-8').split('\n'):
         if sout.strip():
             logger.info(sout)
+            print(sout)
     for serr in stderr.decode('utf-8').split('\n'):
         if serr.strip():
             logger.warning(serr)
+            print(serr)
 
 @pytest.fixture(scope='function')
 def scanner_client(caplog):
