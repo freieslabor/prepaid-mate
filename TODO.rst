@@ -1,5 +1,8 @@
 todo
 ====
+* README: how to run tests, better look
+* pylint
+* squash git commits
 
 ui
 --
@@ -13,16 +16,10 @@ ui
 
 backend
 -------
-* /api/payment/perform should return user's balance
-* extensive logging
-* tests
 * password reset script
+* docs
 
 scanner-client
 --------------
-* use requests instead of urllib
-* timeout after user identification
-* confirmation sounds
-* current balance text2speech
-* extensive logging
-* tests
+* docs
+* feature: add possibility for custom sounds per message

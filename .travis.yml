@@ -16,4 +16,4 @@ install:
 - pip install "setuptools>=36.3" -r test-requirements.txt
 
 script:
-- pytest -vs
+- pytest -v

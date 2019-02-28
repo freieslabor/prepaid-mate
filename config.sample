@@ -4,7 +4,7 @@ superuser-password = INSERT_SUPERUSER_PASSWORD_HERE
 
 [scanner-client]
 reset-barcode = 123456789
-scanner-device = /dev/input/by-path/pci-0000:00:14.0-usb-0:2:1.0-event-kbd
+barcode-device = /dev/input/by-path/pci-0000:00:14.0-usb-0:2:1.0-event-kbd
 rfid-device = /dev/input/by-path/pci-0000:00:1a.0-usb-0:1.2:1.0-event-kbd
 callback = http://localhost:5000/api/payment/perform
 debug = 1

@@ -46,16 +46,22 @@ def password_check(request):
         account = query_db('SELECT id, password_hash FROM accounts WHERE name = ?',
                         [request.form['name']], one=True)
         if 'password' not in request.form:
-            raise KeyError
+            app.logger.info('password check failed: no password given')
+            raise KeyError()
     except KeyError:
+        app.logger.info('password check failed: no username given')
         raise Exception('Incomplete request')
 
     try:
         account_id, password_hash = tuple(account)
     except TypeError:
+        app.logger.info('password check failed: no such account "%s" in database',
+                        request.form['name'])
         raise Exception('No such account in database')
 
     if not check_password_hash(password_hash, request.form['password']):
+        app.logger.info('password check failed: wrong password for account "%s"',
+                        request.form['name'])
         raise Exception('Wrong password')
 
     return account_id
@@ -85,11 +91,18 @@ def account_create():
             raise BadRequestKeyError
 
         get_db().commit()
+        app.logger.info('Account "%s (identifier: "%s") created',
+                        request.form['name'], request.form['barcode'])
     except BadRequestKeyError:
-        return 'Incomplete request', 400
+        e_str = 'Incomplete request'
+        app.logger.warning(e_str)
+        return e_str, 400
     except sqlite3.IntegrityError as e:
-        return sql_integrity_error(e)
+        e_str = sql_integrity_error(e)
+        app.logger.error(e_str)
+        return e_str
     except sqlite3.OperationalError as e:
+        app.logger.error(e)
         return e, 400
 
     return 'ok'
@@ -121,11 +134,17 @@ def account_modify():
             raise BadRequestKeyError
 
         get_db().commit()
+        app.logger.info('Account "%s modified', request.form['name'])
     except BadRequestKeyError:
-        return 'Incomplete request', 400
+        e_str = 'Incomplete request'
+        app.logger.warning(e_str)
+        return e_str, 400
     except sqlite3.IntegrityError:
-        return 'Database integrity error', 400
+        e_str = sql_integrity_error(e)
+        app.logger.error(e_str)
+        return e_str, 400
     except sqlite3.OperationalError as e:
+        app.logger.error(e)
         return e, 400
 
     return 'ok'
@@ -164,9 +183,12 @@ def money_add():
         try:
             money = int(request.form['money'])
         except ValueError:
+            app.logger.info('Money for "%s" not given in cents', request.form['name'])
             return 'Money must be specified in cents', 400
 
         if money <= 0:
+            app.logger.info('Negative amount of money given for account "%s"',
+                            request.form['name'])
             return 'Zero/negative money given', 400
 
         query_db('UPDATE accounts SET saldo=saldo+? WHERE id=?',
@@ -174,13 +196,19 @@ def money_add():
         query_db('INSERT INTO money_logs (account_id, amount, timestamp) VALUES (?, ?, strftime("%s", "now"))',
                   [account_id, money])
         get_db().commit()
+        app.logger.info('Added %d cents to account "%s"', money, request.form['name'])
     except Exception as e:
         get_db().rollback()
         if isinstance(e, (BadRequestKeyError, KeyError)):
-            return 'Incomplete request', 400
+            e_str = 'Incomplete request'
+            app.logger.warning(e_str)
+            return e_str, 400
         if isinstance(e, sqlite3.IntegrityError):
-            return 'Database integrity error', 400
+            e_str = sql_integrity_error(e)
+            app.logger.error(e_str)
+            return e_str, 400
         if isinstance(e, sqlite3.OperationalError):
+            app.logger.error(e)
             return e, 400
 
     return 'ok'
@@ -203,9 +231,13 @@ def money_view():
             [account_id, 'Guthaben aufgeladen', account_id]
         )
     except BadRequestKeyError:
-        return 'Incomplete request', 400
-    except sqlite3.IntegrityError:
-        return 'Database integrity error', 400
+        e_str = 'Incomplete request'
+        app.logger.warning(e_str)
+        return e_str, 400
+    except sqlite3.IntegrityError as e:
+        e_str = sql_integrity_error(e)
+        app.logger.error(e_str)
+        return e_str, 400
 
     return json.dumps([tuple(row) for row in transactions])
 
@@ -219,6 +251,7 @@ def payment_perform():
     """
     if request.form['superuserpassword'] != \
         conf.get('DEFAULT', 'superuser-password'):
+        app.logger.warning('Payment with wrong super user password')
         return 'Wrong superuserpassword', 400
 
     try:
@@ -227,20 +260,27 @@ def payment_perform():
         try:
             account_id, saldo = tuple(account)
         except TypeError:
-            return 'Barcode does not belong to an account', 400
+            e_str = 'Barcode does not belong to an account'
+            app.logger.warning(e_str)
+            return e_str, 400
 
         if account_id is None:
-            return 'No such account in database', 400
+            e_str = 'No such account in database'
+            app.logger.warning(e_str)
+            return e_str, 400
 
         drink = query_db('SELECT id, price FROM drinks WHERE barcode=?',
                        [request.form['drink_barcode']], one=True)
-        print("drink_barcode = " + request.form['drink_barcode'])
         try:
             drink_id, drink_price = tuple(drink)
         except TypeError:
-            return 'No such drink in database', 400
+            e_str = 'No such drink in database'
+            app.logger.warning(e_str)
+            return e_str, 400
 
         if saldo - drink_price < 0:
+            e_str = 'Insufficient funds'
+            app.logger.warning(e_str)
             return 'Insufficient funds', 400
 
         query_db('INSERT INTO pay_logs (account_id, drink_id, timestamp) VALUES (?, ?, strftime("%s", "now"))',
@@ -248,11 +288,16 @@ def payment_perform():
         query_db('UPDATE accounts SET saldo=saldo-? WHERE id=?',
                  [drink_price, account_id])
         get_db().commit()
+        app.logger.warning('Account ID "%s" ordered %s (%d cents), new saldo=%d cents',
+                           account_id, drink_id, drink_price, saldo)
+        return str(saldo - drink_price)
     except Exception as e:
         get_db().rollback()
         if isinstance(e, BadRequestKeyError):
-            return 'Incomplete request', 400
+            e_str = 'Incomplete request'
+            app.logger.warning(e_str)
+            return e_str, 400
         if isinstance(e, sqlite3.IntegrityError):
-            return 'Database integrity error', 400
-
-    return 'ok'
+            e_str = sql_integrity_error(e)
+            app.logger.error(e_str)
+            return e_str

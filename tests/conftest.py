@@ -48,7 +48,6 @@ def create_test_config(section, **options):
 
 def start_process_operational(cmd, cfg, operational_re, cmd_name, env=os.environ.copy(), timeout=5):
     logger = logging.getLogger(cmd_name)
-    logger.setLevel(10)
 
     env['CONFIG'] = cfg.name
 
@@ -88,31 +87,47 @@ def end_process(proc, cmd_name):
 
 @pytest.fixture(scope='function')
 def scanner_client(caplog):
-    # decrease log level to be able to debug scanner client
-    caplog.set_level(logging.INFO)
-    name = 'scanner client'
-    barcode_event = '/dev/input/event13'
-    rfid_event = '/dev/input/event14'
-    test_config, config = create_test_config(
-        'scanner-client',
-        scanner_device=barcode_event,
-        rfid_device=rfid_event
-    )
-    # run client
-    cmd = 'umockdev-run -d {path}rfid.umockdev -i {barcode_event}={path}rfid.ioctl -e {barcode_event}={path}rfid.events -d {path}barcode.umockdev -i {rfid_event}={path}barcode.ioctl -e {rfid_event}={path}barcode.events -- python scanner-client.py' \
-        .format(
-            path='tests/umockdev/',
-            barcode_event=barcode_event,
-            rfid_event=rfid_event
-        )
-    proc = start_process_operational(cmd, test_config, 'Waiting for input..', name)
+    procs = []
+    configs = []
+    names = []
+    def _scanner_client(enabled=['rfid', 'barcode']):
+        # decrease log level to be able to debug scanner client
+        caplog.set_level(logging.INFO)
+        names.append('scanner client')
 
-    yield config, proc
+        event_devices = {
+            'rfid_device': '/dev/input/event14',
+            'barcode_device': '/dev/input/event13'
+        }
 
-    end_process(proc, name)
+        if isinstance(enabled, str):
+            enabled = [enabled]
 
-    # clean up tempfile by closing it
-    test_config.close()
+        configs.append(create_test_config('scanner-client', **event_devices)[0])
+        # run client
+        cmd = 'umockdev-run'
+        for name, dev in event_devices.items():
+            name = name.replace('_device', '')
+            cmd += ' -d {path}{name}.umockdev -i {dev}={path}{name}.ioctl' \
+                .format(path='tests/umockdev/', name=name, dev=dev)
+
+            if name in enabled:
+                cmd += ' -e {dev}={path}{name}.events' \
+                    .format(path='tests/umockdev/', name=name, dev=dev)
+
+        cmd += ' -- python scanner-client.py'
+        procs.append(start_process_operational(cmd, configs[-1], 'Prepaid Mate up and running', names[-1]))
+
+        return procs[-1]
+
+    yield _scanner_client
+
+    # clean up
+    for proc, config, name in zip(procs, configs, names):
+        end_process(proc, name)
+
+        # clean up tempfile by closing it
+        config.close()
 
 @pytest.fixture(scope='function')
 def flask_server(caplog, pytestconfig):
@@ -139,13 +154,18 @@ def flask_server(caplog, pytestconfig):
 
 @pytest.fixture(scope='function')
 def create_account():
-    data = {'name': 'foo', 'password':'bar', 'barcode': '123'}
+    # the identifier matches the rfid code in tests/umockdev/rfid.events
+    data = {'name': 'foo', 'password':'bar', 'barcode': '0016027465'}
     requests.post('{}/account/create'.format(pytest.API_URL), data=data)
     return data
 
 @pytest.fixture(scope='function')
-def create_account_with_1_euro(create_account):
+def create_account_with_balance(create_account):
     data = create_account
-    data['money'] = 100
-    requests.post('{}/money/add'.format(pytest.API_URL), data=data)
-    return data
+
+    def _create_account_with_balance(balance):
+        data['money'] = balance
+        requests.post('{}/money/add'.format(pytest.API_URL), data=data)
+        return data
+
+    return _create_account_with_balance
