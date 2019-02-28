@@ -1,3 +1,5 @@
+|build-status|
+
 Getting started
 ===============
 
@@ -37,3 +39,6 @@ Or start the development server in debug mode:
 
 Now head your browser to `http://localhost:5000/` to start.
 Do not use the development server in a production environment.
+
+.. |build-status| image:: https://travis-ci.com/freieslabor/prepaid-mate.svg?branch=bst%2Fdev
+    :target: https://travis-ci.com/freieslabor/prepaid-mate
