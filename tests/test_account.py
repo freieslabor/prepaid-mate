@@ -98,7 +98,7 @@ def test_account_view_good(flask_server, create_account):
 
     r = requests.post('{}/account/view'.format(pytest.API_URL), data=data)
     assert r.status_code == 200
-    assert json.loads(r.content) == [data['name'], data['barcode'], 0]
+    assert json.loads(r.content.decode('utf-8')) == [data['name'], data['barcode'], 0]
 
 def test_account_view_wrong_pw(flask_server, create_account):
     data = create_account

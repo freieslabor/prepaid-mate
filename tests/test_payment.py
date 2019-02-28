@@ -21,7 +21,7 @@ def test_payment_perform_good(flask_server, create_account_with_1_euro):
 
     r = requests.post('{}/account/view'.format(pytest.API_URL), data=account_data)
     assert r.status_code == 200
-    account_balance = json.loads(r.content)[2]
+    account_balance = json.loads(r.content.decode('utf-8'))[2]
     assert account_balance == 0
 
 def test_payment_perform_wrong_pw(flask_server, create_account_with_1_euro):
@@ -40,7 +40,7 @@ def test_payment_perform_wrong_pw(flask_server, create_account_with_1_euro):
 
     r = requests.post('{}/account/view'.format(pytest.API_URL), data=account_data)
     assert r.status_code == 200
-    account_balance = json.loads(r.content)[2]
+    account_balance = json.loads(r.content.decode('utf-8'))[2]
     assert account_balance == account_data['money']
 
 def test_payment_perform_insufficient_funds(flask_server, create_account_with_1_euro):
@@ -63,5 +63,5 @@ def test_payment_perform_insufficient_funds(flask_server, create_account_with_1_
 
     r = requests.post('{}/account/view'.format(pytest.API_URL), data=account_data)
     assert r.status_code == 200
-    account_balance = json.loads(r.content)[2]
+    account_balance = json.loads(r.content.decode('utf-8'))[2]
     assert account_balance == 0

@@ -2,7 +2,7 @@
 
 import logging
 import os
-from enum import Enum, auto
+from enum import Enum
 import urllib.request
 import urllib.parse
 import urllib.error
@@ -12,8 +12,8 @@ import select
 from evdev import InputDevice, categorize, ecodes
 
 class Mode(Enum):
-    ACCOUNT = auto()
-    ORDER = auto()
+    ACCOUNT = 1
+    ORDER = 2
 
 
 class BarcodeScannerClient:

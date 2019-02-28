@@ -17,7 +17,7 @@ def test_money_add_view_account_view_good(flask_server, create_account):
 
     r = requests.post('{}/money/view'.format(pytest.API_URL), data=data)
     assert r.status_code == 200
-    result = json.loads(r.content)
+    result = json.loads(r.content.decode('utf-8'))
     assert len(result) == 1
     assert result[0][:2] == [1000, "Guthaben aufgeladen"]
     assert isinstance(result[0][2], int)
@@ -25,7 +25,7 @@ def test_money_add_view_account_view_good(flask_server, create_account):
 
     r = requests.post('{}/account/view'.format(pytest.API_URL), data=data)
     assert r.status_code == 200
-    assert json.loads(r.content) == [data['name'], data['barcode'], data_add['money']]
+    assert json.loads(r.content.decode('utf-8')) == [data['name'], data['barcode'], data_add['money']]
 
 def test_money_add_incomplete(flask_server, create_account):
     data = create_account
@@ -43,7 +43,7 @@ def test_money_add_incomplete(flask_server, create_account):
 
         r = requests.post('{}/money/view'.format(pytest.API_URL), data=data)
         assert r.status_code == 200
-        assert json.loads(r.content) == []
+        assert json.loads(r.content.decode('utf-8')) == []
 
 def test_money_add_empty(flask_server, create_account):
     data = create_account
@@ -61,7 +61,7 @@ def test_money_add_empty(flask_server, create_account):
 
         r = requests.post('{}/money/view'.format(pytest.API_URL), data=data)
         assert r.status_code == 200
-        assert json.loads(r.content) == []
+        assert json.loads(r.content.decode('utf-8')) == []
 
 def test_money_add_negative(flask_server, create_account):
     data = create_account
@@ -73,7 +73,7 @@ def test_money_add_negative(flask_server, create_account):
 
     r = requests.post('{}/money/view'.format(pytest.API_URL), data=data)
     assert r.status_code == 200
-    assert json.loads(r.content) == []
+    assert json.loads(r.content.decode('utf-8')) == []
 
 def test_money_add_nonumber(flask_server, create_account):
     data = create_account
@@ -87,7 +87,7 @@ def test_money_add_nonumber(flask_server, create_account):
 
         r = requests.post('{}/money/view'.format(pytest.API_URL), data=data)
         assert r.status_code == 200
-        assert json.loads(r.content) == []
+        assert json.loads(r.content.decode('utf-8')) == []
 
 def test_money_view_incomplete(flask_server, create_account):
     data = create_account
