@@ -72,27 +72,27 @@ def account_create():
     expects POST params:
     - name
     - password
-    - barcode
+    - code
     """
 
     try:
         drink_barcode = query_db('SELECT barcode FROM drinks WHERE barcode= ?',
-                                  [request.form['barcode']], one=True)
+                                  [request.form['code']], one=True)
         if drink_barcode is not None:
-            return 'This barcode is already used for a drink', 400
+            return 'This code is already used for a drink', 400
 
         password_hash = generate_password_hash(request.form['password'])
         query_db('INSERT INTO accounts (name, password_hash, barcode, saldo) VALUES (?, ?, ?, 0)',
-                 [request.form['name'], password_hash, request.form['barcode']])
+                 [request.form['name'], password_hash, request.form['code']])
 
         if request.form['name'] == '' or request.form['password'] == '' \
-            or request.form['barcode'] == '':
+            or request.form['code'] == '':
             get_db().rollback()
             raise BadRequestKeyError
 
         get_db().commit()
         app.logger.info('Account "%s (identifier: "%s") created',
-                        request.form['name'], request.form['barcode'])
+                        request.form['name'], request.form['code'])
     except BadRequestKeyError:
         e_str = 'Incomplete request'
         app.logger.warning(e_str)
@@ -115,7 +115,7 @@ def account_modify():
     - password
     - new_name
     - new_password
-    - new_barcode
+    - new_code
     """
     try:
         password_check(request)
@@ -126,10 +126,10 @@ def account_modify():
         new_password_hash = generate_password_hash(request.form['new_password'])
         test = query_db('UPDATE accounts SET name=?, password_hash=?, barcode=? WHERE name=?',
                         [request.form['new_name'], new_password_hash,
-                         request.form['new_barcode'], request.form['name']])
+                         request.form['new_code'], request.form['name']])
 
         if request.form['new_name'] == '' or request.form['new_password'] == '' \
-            or request.form['new_barcode'] == '':
+            or request.form['new_code'] == '':
             get_db().rollback()
             raise BadRequestKeyError
 
@@ -246,7 +246,7 @@ def payment_perform():
     """
     expects POST params:
     - superuserpassword
-    - account_barcode
+    - account_code
     - drink_barcode
     """
     if request.form['superuserpassword'] != \
@@ -256,7 +256,7 @@ def payment_perform():
 
     try:
         account = query_db('SELECT id, saldo FROM accounts WHERE barcode=?',
-                       [request.form['account_barcode']], one=True)
+                       [request.form['account_code']], one=True)
         try:
             account_id, saldo = tuple(account)
         except TypeError:

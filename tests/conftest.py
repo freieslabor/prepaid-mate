@@ -155,7 +155,7 @@ def flask_server(caplog, pytestconfig):
 @pytest.fixture(scope='function')
 def create_account():
     # the identifier matches the rfid code in tests/umockdev/rfid.events
-    data = {'name': 'foo', 'password':'bar', 'barcode': '0016027465'}
+    data = {'name': 'foo', 'password':'bar', 'code': '0016027465'}
     requests.post('{}/account/create'.format(pytest.API_URL), data=data)
     return data
 

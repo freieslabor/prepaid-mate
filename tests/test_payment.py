@@ -11,7 +11,7 @@ def test_payment_perform_good(flask_server, create_account_with_balance):
     drink_barcode = '4029764001807'
     payment_data = {
         'superuserpassword': config['DEFAULT']['superuser-password'],
-        'account_barcode': account_data['barcode'],
+        'account_code': account_data['code'],
         'drink_barcode': drink_barcode
     }
 
@@ -30,7 +30,7 @@ def test_payment_perform_wrong_pw(flask_server, create_account_with_balance):
     drink_barcode = '4029764001807'
     payment_data = {
         'superuserpassword': 'some-madeup=pw',
-        'account_barcode': account_data['barcode'],
+        'account_code': account_data['code'],
         'drink_barcode': drink_barcode
     }
 
@@ -49,7 +49,7 @@ def test_payment_perform_insufficient_funds(flask_server, create_account_with_ba
     drink_barcode = '4029764001807'
     payment_data = {
         'superuserpassword': config['DEFAULT']['superuser-password'],
-        'account_barcode': account_data['barcode'],
+        'account_code': account_data['code'],
         'drink_barcode': drink_barcode
     }
 

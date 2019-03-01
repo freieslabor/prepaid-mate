@@ -64,7 +64,7 @@ class BarcodeScannerClient:
         self.logger.info('account "%s" ordered "%s"', self.account_barcode, order_barcode)
         data = self.callback_data
         data['drink_barcode'] = order_barcode
-        data['account_barcode'] = self.account_barcode
+        data['account_code'] = self.account_barcode
 
         self.logger.debug('calling %s with %s', self.pay_callback_url, data)
         r = requests.post(self.pay_callback_url, data=data)

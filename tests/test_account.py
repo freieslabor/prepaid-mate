@@ -7,20 +7,20 @@ import requests
 
 def test_account_creation_good(flask_server):
     r = requests.post('{}/account/create'.format(pytest.API_URL),
-                      data={'name': 'foo', 'password': 'bar', 'barcode': '123'})
+                      data={'name': 'foo', 'password': 'bar', 'code': '123'})
     assert r.status_code == 200
     assert r.content == b'ok'
 
 def test_account_creation_incomplete(flask_server):
     datas = (
-        {'password': 'bar', 'barcode': '123'},
-        {'name': 'foo', 'barcode': '123'},
+        {'password': 'bar', 'code': '123'},
+        {'name': 'foo', 'code': '123'},
         {'name': 'foo', 'password': 'bar'},
-        {'password': 'bar', 'barcode': '123'},
-        {'name': 'foo', 'barcode': '123'},
+        {'password': 'bar', 'code': '123'},
+        {'name': 'foo', 'code': '123'},
         {'name': 'foo'},
         {'password': 'bar'},
-        {'barcode': '123'},
+        {'code': '123'},
     )
 
     for data in datas:
@@ -30,9 +30,9 @@ def test_account_creation_incomplete(flask_server):
 
 def test_account_creation_empty(flask_server):
     datas = (
-        {'name': '', 'password': 'bar', 'barcode': '123'},
-        {'name': 'foo', 'password': '', 'barcode': '123'},
-        {'name': 'foo', 'password': 'bar', 'barcode': ''},
+        {'name': '', 'password': 'bar', 'code': '123'},
+        {'name': 'foo', 'password': '', 'code': '123'},
+        {'name': 'foo', 'password': 'bar', 'code': ''},
     )
 
     for data in datas:
@@ -44,14 +44,14 @@ def test_account_modification_good(flask_server, create_account):
     data = create_account
     data['new_name'] = 'foo2'
     data['new_password'] = 'bar2'
-    data['new_barcode'] = '456'
+    data['new_code'] = '456'
 
     r = requests.post('{}/account/modify'.format(pytest.API_URL), data=data)
     assert r.status_code == 200
     assert r.content == b'ok'
 
 def test_account_modification_inexistent(flask_server):
-    data = {'name': 'no', 'password': 'nope', 'new_name': 'foo2', 'new_password': 'bar2', 'new_barcode': '456'}
+    data = {'name': 'no', 'password': 'nope', 'new_name': 'foo2', 'new_password': 'bar2', 'new_code': '456'}
 
     r = requests.post('{}/account/modify'.format(pytest.API_URL), data=data)
     assert r.status_code == 400
@@ -60,9 +60,9 @@ def test_account_modification_inexistent(flask_server):
 def test_account_modification_empty(flask_server, create_account):
     data = create_account
     inputs = (
-        {'new_name': '', 'new_password': 'bar2', 'new_barcode': '456'},
-        {'new_name': 'foo2', 'new_password': '', 'new_barcode': '456'},
-        {'new_name': 'foo2', 'new_password': 'bar2', 'new_barcode': ''},
+        {'new_name': '', 'new_password': 'bar2', 'new_code': '456'},
+        {'new_name': 'foo2', 'new_password': '', 'new_code': '456'},
+        {'new_name': 'foo2', 'new_password': 'bar2', 'new_code': ''},
     )
     for input_ in inputs:
         data_tmp = copy.copy(data)
@@ -75,14 +75,14 @@ def test_account_modification_empty(flask_server, create_account):
 def test_account_modification_incomplete(flask_server, create_account):
     data = create_account
     inputs = (
-        {'new_password': 'bar2', 'new_barcode': '456'},
-        {'new_name': 'foo2', 'new_barcode': '456'},
+        {'new_password': 'bar2', 'new_code': '456'},
+        {'new_name': 'foo2', 'new_code': '456'},
         {'new_name': 'foo2', 'new_password': 'bar2'},
-        {'new_password': 'bar2', 'new_barcode': '456'},
-        {'new_name': 'foo2', 'new_barcode': '456'},
+        {'new_password': 'bar2', 'new_code': '456'},
+        {'new_name': 'foo2', 'new_code': '456'},
         {'new_name': 'foo2'},
         {'new_password': 'bar2'},
-        {'new_barcode': '456'},
+        {'new_code': '456'},
 
     )
     for input_ in inputs:
@@ -98,7 +98,7 @@ def test_account_view_good(flask_server, create_account):
 
     r = requests.post('{}/account/view'.format(pytest.API_URL), data=data)
     assert r.status_code == 200
-    assert json.loads(r.content.decode('utf-8')) == [data['name'], data['barcode'], 0]
+    assert json.loads(r.content.decode('utf-8')) == [data['name'], data['code'], 0]
 
 def test_account_view_wrong_pw(flask_server, create_account):
     data = create_account
