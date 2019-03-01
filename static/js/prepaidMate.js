@@ -68,6 +68,8 @@ function login() {
 function dashboard(accountData) {
 	$('.view').hide();
 	$('#dashboard').show();
+	userName = jQuery.parseJSON(accountData)[0];
+	$('#userName').html(userName)
 	getPaymentData();
 	getCurrentBalance(accountData);
 }
