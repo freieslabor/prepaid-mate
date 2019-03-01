@@ -92,8 +92,10 @@ function showModifyUser() {
 }
 
 function modifyUser() {
-	//write stuff from input to credentials
 	//write credentials back to api
+	credentials.name = $('#createModifyUsername').val();
+	credentials.rfid = $('#createModifyRFID').val();
+	credentials.password = $('#createModifyPassword').val();
 }
 
 function addBalance() {
