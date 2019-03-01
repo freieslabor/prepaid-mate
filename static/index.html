@@ -13,9 +13,9 @@
   </head>
   <body>
     <div class="row">
-        <img class="col-1" src="images/logo.svg">
-        <h1 class="col-9">Prepaid Mate</h1>
-        <button class="col btn btn-link" id="userName"></button>
+        <img class="col-2" src="images/logo.svg">
+        <h1 class="col-8">Prepaid Mate</h1>
+        <button onclick="showModifyUser()" class="col-2 btn btn-link" id="userName"></button>
     </div>
 
     <div class="view" id="start">
@@ -45,22 +45,23 @@
       <div class="row">
         <div class="col-2">
            <div class="form-group">
-              <label for="createUsername">Nutzername</label>
-              <input type="text" class="form-control" id="createUsername" placeholder="Username" value="1">
+              <label for="createModifyUsername">Nutzername</label>
+              <input type="text" class="form-control" id="createModifyUsername" placeholder="Username">
             </div>
             <div class="form-group">
-              <label for="createRFID">RFID</label>
-              <input type="text" class="form-control" id="createRFID" placeholder="RFID" value="2">
+              <label for="createModifyRFID">RFID</label>
+              <input type="text" class="form-control" id="createModifyRFID" placeholder="RFID">
             </div>
             <div class="form-group">
-              <label for="createPassword">Password</label>
-              <input type="password" class="form-control" id="createPassword" placeholder="Password" value="2">
+              <label for="createModifyPassword">Password</label>
+              <input type="password" class="form-control" id="createModifyPassword" placeholder="Password">
             </div>
         </div>
       </div>
       <div class="row">
         <div class="col">
-          <button onclick="createNewAccount()" class="btn btn-primary">Account erstellen</a>
+          <button onclick="createNewAccount()" id="createNewAccountButton" class="btn btn-primary">Account erstellen</a>
+            <button onclick="modifyNewAccount()" id="modifyAccountButton" class="btn btn-primary">Confirm</a>
         </div>
       </div>
     </div>
