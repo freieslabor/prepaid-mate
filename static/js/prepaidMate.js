@@ -13,6 +13,33 @@ function newAccount() {
 	$('#newAccount').show();
 }
 
+function createNewAccount(){
+	createCredentials = {
+		name: null,
+		code: null,
+		password: null
+	}
+
+	createCredentials.name = $('#createUsername').val();
+	createCredentials.code = $('#createRFID').val();
+	createCredentials.password = $('#createPassword').val();
+
+	$.post( //pass login credentials to api
+		"/api/account/create", createCredentials,
+	).done( //on successful login call dashboard()
+		function( accountData ) {
+			$('.view').hide();
+			$('#start').show();
+			$('#InputUsername').focus();
+		}
+	).fail( //on failed login attempt alert user and clear login inputs
+		function( errorMessage ) {
+			alert(errorMessage.responseText);
+			$('#createPassword').val("");
+		}
+	);
+}
+
 credentials = {
 	name: null,
 	password: null,
