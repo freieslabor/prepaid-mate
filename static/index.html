@@ -19,7 +19,7 @@
 
     <div class="view" id="start">
         <div class="row">
-          <div class="col">
+          <div class="col-2">
              <div class="form-group">
                 <label for="exampleInputEmail1">Nutzername</label>
                 <input type="email" class="form-control" id="InputUsername" placeholder="Username" value="1">
@@ -41,6 +41,27 @@
 
     <div class="view" id="newAccount">
       <h1>NEW ACCOUNT!</h1>
+      <div class="row">
+        <div class="col-2">
+           <div class="form-group">
+              <label for="createUsername">Nutzername</label>
+              <input type="text" class="form-control" id="createUsername" placeholder="Username" value="1">
+            </div>
+            <div class="form-group">
+              <label for="createRFID">RFID</label>
+              <input type="text" class="form-control" id="createRFID" placeholder="RFID" value="2">
+            </div>
+            <div class="form-group">
+              <label for="createPassword">Password</label>
+              <input type="password" class="form-control" id="createPassword" placeholder="Password" value="2">
+            </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <button onclick="createNewAccount()" class="btn btn-primary">Account erstellen</a>
+        </div>
+      </div>
     </div>
 
     <div class="view" id="dashboard">
@@ -65,8 +86,6 @@
           </tbody>
         </table>
       </div>
-
-
     </div>
 
     <div class="view" id="modifyAccount">
