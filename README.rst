@@ -68,6 +68,29 @@ Or start the development server in debug mode:
 Now head your browser to `http://localhost:5000/static/index.html` to start.
 Do not use the development server in a production environment.
 
+Test it
+=======
+
+Assuming you performed the steps above:
+
+Activate your virtualenv one more time:
+
+.. code-block:: bash
+
+    $ source prepaid-drinks-venv/bin/activate
+
+Now install the testing dependencies via pip inside the virtualenv:
+
+.. code-block:: bash
+
+    (prepaid-drinks-venv) $ pip install -r test-requirements.txt
+
+Now run the test suite:
+
+.. code-block:: bash
+
+    (prepaid-drinks-venv) $ pytest -v
+
 .. |python3.5| image:: https://img.shields.io/badge/python-3.5-blue.svg
     :alt: Supports python3.5
     :target: https://travis-ci.com/freieslabor/prepaid-mate
