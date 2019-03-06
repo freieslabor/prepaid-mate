@@ -154,3 +154,42 @@ def test_account_view_inexistent_account(flask_server, create_account):
     req = requests.post('{}/account/view'.format(API_URL), data=data)
     assert req.status_code == 400
     assert req.content == b'No such account in database'
+
+def test_account_code_exists(flask_server, create_account):
+    """Test if account code verification method works with existing account."""
+    import requests
+    import json
+
+    account = create_account
+    data = {'code': account['code']}
+    req = requests.post('{}/account/code_exists'.format(API_URL), data=data)
+    status, name = json.loads(req.content.decode('utf-8'))
+    assert status
+    assert name is not None
+
+    req = requests.get('{}/last_unknown_code'.format(API_URL))
+    assert not req.content.decode('utf-8')
+
+def test_account_code_does_not_exist_60s(flask_server):
+    """
+    Test if account code verification method works with inexistent account and
+    last unknown code can be retrieved within the following 60 seconds.
+    """
+    import requests
+    import json
+    import time
+
+    data = {'code': '1234'}
+    req = requests.post('{}/account/code_exists'.format(API_URL), data=data)
+    status, name = json.loads(req.content.decode('utf-8'))
+    assert not status
+    assert name is None
+
+    req = requests.get('{}/last_unknown_code'.format(API_URL))
+    assert req.content.decode('utf-8') == data['code']
+
+    time.sleep(60)
+
+    # code should not be available anymore
+    req = requests.get('{}/last_unknown_code'.format(API_URL))
+    assert not req.content.decode('utf-8')
