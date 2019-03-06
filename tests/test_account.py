@@ -170,6 +170,7 @@ def test_account_code_exists(flask_server, create_account):
     req = requests.get('{}/last_unknown_code'.format(API_URL))
     assert not req.content.decode('utf-8')
 
+@pytest.mark.timeout(65)
 def test_account_code_does_not_exist_60s(flask_server):
     """
     Test if account code verification method works with inexistent account and
