@@ -6,6 +6,7 @@ import sqlite3
 import json
 from configparser import ConfigParser
 import tempfile
+import time
 
 from flask import Flask, g, request
 from flask.logging import create_logger
@@ -396,3 +397,19 @@ def payment_perform():
 
         LOG.warning(exc_str)
         return exc_str, 400
+
+@app.route('/api/last_unknown_code', methods=['GET'])
+def last_unknown_code():
+    """
+    Returns last unknown code seen in the last 60 seconds or empty string.
+
+    Returns 200 with last known code as string or empty string
+    500 on broken code
+    """
+    code = ''
+
+    if time.time() < os.stat(UNKNOWN_CODE.name).st_mtime + 60:
+        code = UNKNOWN_CODE.read().decode('utf-8')
+        UNKNOWN_CODE.seek(0)
+
+    return code
