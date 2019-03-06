@@ -147,6 +147,9 @@ function getPaymentData() {
 				dateTransaction = new Date(transactions[i][2]*1000).toLocaleDateString();
 				dateTransaction += " " + new Date(transactions[i][2]*1000).toLocaleTimeString();
 
+				link = transactions[i][3] == "" ?
+					"#" : "https://www.codecheck.info/product.search?q=" + transactions[i][3];
+
 				//convert cents to euro
 				transactions[i][0] = transactions[i][0] / 100;
 				//check if negative
@@ -165,7 +168,7 @@ function getPaymentData() {
 				.append(
 					$("<td>")
 				.append(
-					transactions[i][1]
+					'<a href="' + link + '">' + transactions[i][1] + '</a>'
 				))
 				.append(
 					$("<td>")
