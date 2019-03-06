@@ -2,15 +2,15 @@
 # disable unused arguments used to run fixtures
 # pylint: disable=unused-argument
 
-import json
-
 import pytest
-import requests
 
 API_URL = pytest.API_URL  # pylint: disable=no-member
 
 def test_payment_perform_good(flask_server, create_account_with_balance):
     """Test if payments work."""
+    import json
+    import requests
+
     config = flask_server
     account_data = create_account_with_balance(100)
     drink_barcode = '4029764001807'
@@ -31,6 +31,9 @@ def test_payment_perform_good(flask_server, create_account_with_balance):
 
 def test_payment_perform_wrong_pw(flask_server, create_account_with_balance):
     """Test if payment with wrong password fails as expected."""
+    import json
+    import requests
+
     account_data = create_account_with_balance(100)
     drink_barcode = '4029764001807'
     payment_data = {
@@ -52,6 +55,9 @@ def test_payment_perform_insufficient_funds(flask_server, create_account_with_ba
     """
     Test if payments for accounts with insufficient funds fails as expected.
     """
+    import json
+    import requests
+
     config = flask_server
     account_data = create_account_with_balance(100)
     drink_barcode = '4029764001807'

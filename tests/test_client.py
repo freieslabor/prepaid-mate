@@ -2,14 +2,14 @@
 # disable unused arguments used to run fixtures
 # pylint: disable=unused-argument
 
-import re
-
 import pytest
 
 API_URL = pytest.API_URL  # pylint: disable=no-member
 
 def test_client(flask_server, create_account_with_balance, scanner_client):
     """Test payment on scanner_client.py with flask server and preset account."""
+    import re
+
     create_account_with_balance(150)
     proc = scanner_client()
 

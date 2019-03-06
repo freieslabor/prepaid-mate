@@ -1,17 +1,14 @@
 """Tests /api/account/* API calls."""
 # disable unused arguments used to run fixtures
 # pylint: disable=unused-argument
-
-import copy
-import json
-
 import pytest
-import requests
 
 API_URL = pytest.API_URL  # pylint: disable=no-member
 
 def test_account_creation_good(flask_server):
     """Test if account creation works."""
+    import requests
+
     req = requests.post('{}/account/create'.format(API_URL),
                         data={'name': 'foo', 'password': 'bar', 'code': '123'})
     assert req.status_code == 200
@@ -19,6 +16,8 @@ def test_account_creation_good(flask_server):
 
 def test_account_creation_incomplete(flask_server):
     """Test if incomplete account creation fails as expected."""
+    import requests
+
     datas = (
         {'password': 'bar', 'code': '123'},
         {'name': 'foo', 'code': '123'},
@@ -37,6 +36,8 @@ def test_account_creation_incomplete(flask_server):
 
 def test_account_creation_empty(flask_server):
     """Test if account creation with empty string for parameter fails as expected."""
+    import requests
+
     datas = (
         {'name': '', 'password': 'bar', 'code': '123'},
         {'name': 'foo', 'password': '', 'code': '123'},
@@ -50,6 +51,8 @@ def test_account_creation_empty(flask_server):
 
 def test_account_modification_good(flask_server, create_account):
     """Test if account modification works."""
+    import requests
+
     data = create_account
     data['new_name'] = 'foo2'
     data['new_password'] = 'bar2'
@@ -61,6 +64,8 @@ def test_account_modification_good(flask_server, create_account):
 
 def test_account_modification_inexistent(flask_server):
     """Test account modification of inexistent account."""
+    import requests
+
     data = {
         'name': 'no',
         'password': 'nope',
@@ -75,6 +80,9 @@ def test_account_modification_inexistent(flask_server):
 
 def test_account_modification_empty(flask_server, create_account):
     """Test account modification with empty string for parameter fails as expected."""
+    import copy
+    import requests
+
     data = create_account
     inputs = (
         {'new_name': '', 'new_password': 'bar2', 'new_code': '456'},
@@ -91,6 +99,9 @@ def test_account_modification_empty(flask_server, create_account):
 
 def test_account_modification_incomplete(flask_server, create_account):
     """Test if incomplete account modification fails as expected."""
+    import copy
+    import requests
+
     data = create_account
     inputs = (
         {'new_password': 'bar2', 'new_code': '456'},
@@ -113,6 +124,9 @@ def test_account_modification_incomplete(flask_server, create_account):
 
 def test_account_view_good(flask_server, create_account):
     """Test if account view works."""
+    import json
+    import requests
+
     data = create_account
 
     req = requests.post('{}/account/view'.format(API_URL), data=data)
@@ -121,6 +135,8 @@ def test_account_view_good(flask_server, create_account):
 
 def test_account_view_wrong_pw(flask_server, create_account):
     """Test if account view with wrong pw fails as expected."""
+    import requests
+
     data = create_account
     data['password'] += '123'
 
@@ -130,6 +146,8 @@ def test_account_view_wrong_pw(flask_server, create_account):
 
 def test_account_view_inexistent_account(flask_server, create_account):
     """Test if account view for inexistent account fails as expected."""
+    import requests
+
     data = create_account
     data['name'] += '123'
 

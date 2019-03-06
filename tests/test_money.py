@@ -2,12 +2,7 @@
 # disable unused arguments used to run fixtures
 # pylint: disable=unused-argument
 
-import copy
-import json
-import time
-
 import pytest
-import requests
 
 API_URL = pytest.API_URL  # pylint: disable=no-member
 
@@ -15,6 +10,11 @@ def test_money_add_view_account_view_good(flask_server, create_account):
     """
     Test if adding money and view transactions and view account info after.
     """
+    import copy
+    import time
+    import json
+    import requests
+
     data = create_account
     data_add = copy.copy(data)
     data_add['money'] = 1000
@@ -38,6 +38,10 @@ def test_money_add_view_account_view_good(flask_server, create_account):
 
 def test_money_add_incomplete(flask_server, create_account):
     """Test if adding money with incomplete parameters fails as expected."""
+    import copy
+    import json
+    import requests
+
     data = create_account
     data['money'] = 1000
 
@@ -57,6 +61,10 @@ def test_money_add_incomplete(flask_server, create_account):
 
 def test_money_add_empty(flask_server, create_account):
     """Test if adding money with empty parameters fails as expected."""
+    import copy
+    import json
+    import requests
+
     data = create_account
     data['money'] = 1000
 
@@ -76,6 +84,9 @@ def test_money_add_empty(flask_server, create_account):
 
 def test_money_add_negative(flask_server, create_account):
     """Test if adding negative amounts of money fails as expected."""
+    import json
+    import requests
+
     data = create_account
     data['money'] = -1000
 
@@ -91,6 +102,9 @@ def test_money_add_nonumber(flask_server, create_account):
     """
     Test if adding strings that are not numbers as money fails as expected.
     """
+    import json
+    import requests
+
     data = create_account
     money_inputs = ['a', '0x100', '!200']
     for money_input in money_inputs:
@@ -106,6 +120,9 @@ def test_money_add_nonumber(flask_server, create_account):
 
 def test_money_view_incomplete(flask_server, create_account):
     """Test if money view with incomplete parameters fails as expected."""
+    import copy
+    import requests
+
     data = create_account
 
     remove_inputs = ['name', 'password']
@@ -120,6 +137,9 @@ def test_money_view_incomplete(flask_server, create_account):
 
 def test_money_view_empty(flask_server, create_account):
     """Test if money view with empty parameters fails as expected."""
+    import copy
+    import requests
+
     data = create_account
 
     empty_inputs = ['name', 'password']

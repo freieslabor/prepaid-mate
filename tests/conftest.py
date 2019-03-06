@@ -1,15 +1,5 @@
 """pytest fixtures and helpers"""
-import subprocess
-import logging
-import os
-import signal
-import tempfile
-import re
-import sqlite3
-from configparser import ConfigParser
-
 import pytest
-import requests
 
 START_TIMEOUT = 5
 SAMPLE_CONFIG = './config.sample'
@@ -18,6 +8,8 @@ pytest.API_URL = 'http://localhost:5000/api'
 
 def truncate_tables(db_fh, tables):
     """Truncate the tables given"""
+    import sqlite3
+
     database = sqlite3.connect(db_fh.name)
     for table in tables:
         cur = database.execute('DELETE FROM {}'.format(table))
@@ -29,6 +21,8 @@ def create_test_db():
     """
     Uses db.sqlite, generates temporary copy and truncates all tables but drinks
     """
+    import tempfile
+
     with open(DB, 'rb') as testdb:
         tmp_db = tempfile.NamedTemporaryFile()
         tmp_db.write(testdb.read())
@@ -43,6 +37,9 @@ def create_test_config(section, **options):
     Uses config.sample, generates temporary copy and sets given options.
     Underscores in keys from kwargs are replaced with minuses.
     """
+    from configparser import ConfigParser
+    import tempfile
+
     sample_cfg = ConfigParser()
     sample_cfg.read(SAMPLE_CONFIG)
 
@@ -59,6 +56,12 @@ def start_process_operational(cmd, cfg, operational_re, cmd_name, env=None):
     Start "cmd" as subprocess with given "cfg" and "env". It is supervised
     until operational_re matches. "cmd_name" is used to name the logger.
     """
+    import subprocess
+    import logging
+    import os
+    import signal
+    import re
+
     logger = logging.getLogger(cmd_name)
 
     if env is None:
@@ -90,6 +93,10 @@ def end_process(proc, cmd_name):
     End a process started with start_process_operational(). Log stdout/stderr
     with logger with name "cmd_name" emitted by the process.
     """
+    import logging
+    import os
+    import signal
+
     logger = logging.getLogger(cmd_name)
     # kill process group
     os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
@@ -106,6 +113,8 @@ def end_process(proc, cmd_name):
 @pytest.fixture(scope='function')
 def scanner_client(caplog):
     """Start scanner_client.py and emulate RFID and barcode scanner."""
+    import logging
+
     procs = []
     configs = []
     names = []
@@ -152,6 +161,9 @@ def scanner_client(caplog):
 @pytest.fixture(scope='function')
 def flask_server(caplog, pytestconfig):
     """Start flask server."""
+    import logging
+    import os
+
     # decrease log level to be able to debug flask server
     caplog.set_level(logging.INFO)
     name = 'flask server'
@@ -176,6 +188,8 @@ def flask_server(caplog, pytestconfig):
 @pytest.fixture(scope='function')
 def create_account():
     """Create an account with some predefined parameters."""
+    import requests
+
     # the identifier matches the rfid code in tests/umockdev/rfid.events
     data = {'name': 'foo', 'password':'bar', 'code': '0016027465'}
     requests.post('{}/account/create'.format(pytest.API_URL), data=data)
@@ -186,6 +200,8 @@ def create_account_with_balance(create_account):  # pylint: disable=redefined-ou
     """
     Create an account with some predefined parameters with a balance given.
     """
+    import requests
+
     data = create_account
 
     def _create_account_with_balance(balance):
