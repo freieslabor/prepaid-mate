@@ -7,6 +7,7 @@ from enum import Enum
 from configparser import ConfigParser
 import select
 import time
+import json
 
 import requests
 from evdev import InputDevice, categorize, ecodes
@@ -75,6 +76,18 @@ class ScannerClient:
         """Saves the account code and remembers when it was recognized."""
         self.account_code = account_code
         self.logger.info('account code: %s', self.account_code)
+
+        data = {'code': self.account_code}
+        req = requests.post('{}/api/account/code_exists'.format(self.api_url), data=data)
+        if req.status_code != 200:
+            raise BackendError('backend error during account verification')
+
+        status, name = json.loads(req.content.decode('utf-8'))
+        if status:
+            self.log_and_speak('hi {name}'.format(name=name))
+        else:
+            raise UserError('account not recognized, register now')
+
         self.order_time = time.time()
 
     def process_barcode_order(self, order_barcode):
