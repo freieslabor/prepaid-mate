@@ -70,6 +70,13 @@ def start_process_operational(cmd, cfg, operational_re, cmd_name, env=None):
 
     # run process
     try:
+        logger.info('Used config ({cfg}):'.format(cfg=cfg.name))
+        with open(cfg.name) as config:
+            for line in config.readlines():
+                logger.info(line[:-1])
+
+        env_diff = {'{}={}'.format(k, env[k]) for k in set(env) - set(os.environ.copy())}
+        logger.info('{env} {cmd}'.format(env=' '.join(env_diff), cmd=cmd))
         proc = subprocess.Popen(cmd, shell=True, env=env,   # pylint: disable=subprocess-popen-preexec-fn
                                 stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE,
