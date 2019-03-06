@@ -4,8 +4,6 @@
 
 import pytest
 
-API_URL = pytest.API_URL  # pylint: disable=no-member
-
 def test_client(flask_server, create_account_with_balance, scanner_client):
     """Test payment on scanner_client.py with flask server and preset account."""
     import re
@@ -22,6 +20,7 @@ def test_client(flask_server, create_account_with_balance, scanner_client):
         return None
 
     assert 'account code: 0016027465' in get_log_line()
+    get_log_line() # ignore user greeting
     assert 'account "0016027465" ordered "42254300"'  in get_log_line()
-    assert 'calling {}'.format(API_URL) in get_log_line()
+    assert 'calling API with' in get_log_line()
     assert 'callback successful: ' in get_log_line()

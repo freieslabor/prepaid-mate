@@ -11,6 +11,15 @@ import time
 import requests
 from evdev import InputDevice, categorize, ecodes
 
+CONF_FILE = os.environ.get('CONFIG', './config')
+CONF_SECTION = 'scanner-client'
+
+class UserError(Exception):
+    """Errors the user is responsible for."""
+
+class BackendError(Exception):
+    """Backend did not behave as expected."""
+
 class Mode(Enum):
     """Modes the ScannerClient can be in."""
     ACCOUNT = 1
@@ -22,29 +31,24 @@ class ScannerClient:
     A user is identified by barcode or RFID code.
     A drink is always identified by barcode.
     """
-    def __init__(self, config_file, conf_section='scanner-client'):
-        conf = ConfigParser()
-        conf.read_file(open(config_file))
-        self.debug = conf.getboolean(conf_section, 'debug')
-        self.scan_dev = InputDevice(conf.get(conf_section, 'barcode-device'))
-        self.rfid_dev = InputDevice(conf.get(conf_section, 'rfid-device'))
-        self.reset_barcode = conf.get(conf_section, 'reset-barcode')
-        self.pay_callback_url = conf.get(conf_section, 'callback')
-        self.callback_data = {
-            'superuserpassword': conf.get('DEFAULT', 'superuser-password'),
-        }
+    def __init__(self, config_file):
+        self.conf = ConfigParser()
+        self.conf.read_file(open(config_file))
+        self.debug = self.conf.getboolean(CONF_SECTION, 'debug')
+        self.api_url = self.conf.get(CONF_SECTION, 'api-url')
         self.mode = Mode.ACCOUNT
         self.account_code = None
         self.order_time = None
 
-        loglevel = logging.DEBUG if logging.DEBUG else logging.INFO
+        loglevel = logging.DEBUG if self.debug else logging.INFO
         logging.basicConfig(level=loglevel)
         self.logger = logging.getLogger()
 
-    def log_and_speak(self, msg):
+    def log_and_speak(self, msg, level=logging.INFO):
         """Logs the given message and uses espeak to inform the user"""
         self.logger.info(msg)
-        os.system('/usr/bin/espeak "{msg}"', msg=msg)
+        if not self.debug:
+            os.system('/usr/bin/espeak "{msg}"'.format(msg=msg))
 
     def process_code(self, barcode, timeout=15):
         """
@@ -55,13 +59,13 @@ class ScannerClient:
         """
         if self.order_time and time.time() > self.order_time + timeout:
             self.log_and_speak('order timeout, back in account scan mode')
-            self.mode = Mode.ACCOUNT
+            self.reset()
 
         if self.mode is Mode.ACCOUNT:
             self.process_code_account(barcode)
             self.mode = Mode.ORDER
         elif self.mode is Mode.ORDER:
-            if barcode == self.reset_barcode:
+            if barcode == self.conf.get(CONF_SECTION, 'reset-barcode'):
                 self.log_and_speak('reset barcode recognized, ignoring order')
             else:
                 self.process_barcode_order(barcode)
@@ -75,64 +79,77 @@ class ScannerClient:
 
     def process_barcode_order(self, order_barcode):
         """
-        Submit the saved account code along with the order barcode to the
-        defined callback.
+        Submit the saved account code along with the order barcode to the API.
         """
         assert self.account_code is not None
         self.logger.info('account "%s" ordered "%s"', self.account_code, order_barcode)
-        data = self.callback_data
+        data = {'superuserpassword': self.conf.get('DEFAULT', 'superuser-password')}
         data['drink_barcode'] = order_barcode
         data['account_code'] = self.account_code
 
-        self.logger.debug('calling %s with %s', self.pay_callback_url, data)
-        req = requests.post(self.pay_callback_url, data=data)
+        self.logger.debug('calling API with %s', data)
+        req = requests.post('{}/api/payment/perform'.format(self.api_url), data=data)
 
         if req.status_code == 200:
             self.logger.info('callback successful: %s', req.content.decode('utf-8'))
             saldo = int(req.content.decode('utf-8'))/100.0
             self.log_and_speak('Payment successful: your balance is {} Euro' \
                                .format(saldo))
-        else:
+        elif req.status_code == 400:
             self.logger.error('callback failed: %s (%d)', req.content.decode('utf-8'),
                               req.status_code)
-            self.log_and_speak('Payment failed: {}'.format(req.content.decode('utf-8')))
+            raise UserError('Payment failed: {}'.format(req.content.decode('utf-8')))
+        else:
+            raise BackendError('backend error during payment')
+
+    def reset(self):
+        """Resets order specifics."""
+        self.mode = Mode.ACCOUNT
+        self.account_code = None
+        self.order_time = None
 
     def run(self):
         """Endless loop grabbing content from barcode and RFID scanner."""
-        barcode = ''
-        rfid = ''
+        scan_dev = InputDevice(self.conf.get(CONF_SECTION, 'barcode-device'))
+        rfid_dev = InputDevice(self.conf.get(CONF_SECTION, 'rfid-device'))
+        code = ''
         try:
             if not self.debug:
-                self.scan_dev.grab()
-                self.rfid_dev.grab()
+                scan_dev.grab()
+                rfid_dev.grab()
 
             self.logger.info('Prepaid Mate up and running')
 
             while True:
-                readable_dev, _, _ = select.select([self.scan_dev, self.rfid_dev], [], [])
+                readable_dev, _, _ = select.select([scan_dev, rfid_dev], [], [])
                 for dev in readable_dev:
                     input_ = dev.read_one()
                     event = categorize(input_)
-                    if input_.type == ecodes.EV_KEY and event.keystate == 1:  # pylint: disable=no-member
-                        if event.keycode[4:].isdigit():
-                            if dev == self.scan_dev:
-                                barcode += event.keycode[4:]
-                            elif dev == self.rfid_dev:
-                                rfid += event.keycode[4:]
-                        elif event.keycode == 'KEY_ENTER':
-                            if dev == self.scan_dev:
-                                self.process_code(barcode)
-                                barcode = ''
-                            elif dev == self.rfid_dev:
-                                self.process_code(rfid)
-                                rfid = ''
+                    if input_.type != ecodes.EV_KEY or event.keystate != 1:  # pylint: disable=no-member
+                        continue
+
+                    key = event.keycode.replace('KEY_', '')
+                    if key.isdigit():
+                        code += key
+                    elif key == 'ENTER':
+                        try:
+                            self.process_code(code)
+                        except (UserError, BackendError,
+                                requests.exceptions.ConnectionError) as exc:
+                            self.log_and_speak(exc.args[0], level=logging.ERROR)
+                            self.reset()
+                            continue
+                        finally:
+                            code = ''
+                    else:
+                        self.logger.warning('got unexpected {keycode} from {dev}'.format(
+                                            keycode=event.keycode, dev=dev))
         finally:
             if not self.debug:
-                self.scan_dev.ungrab()
-                self.rfid_dev.ungrab()
+                scan_dev.ungrab()
+                rfid_dev.ungrab()
 
 
 if __name__ == '__main__':
-    CONF_FILE = os.environ.get('CONFIG', './config')
     CLIENT = ScannerClient(CONF_FILE)
     CLIENT.run()
