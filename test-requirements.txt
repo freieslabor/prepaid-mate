@@ -1,3 +1,2 @@
 pytest
-requests
 -r requirements.txt
