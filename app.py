@@ -5,6 +5,7 @@ import os
 import sqlite3
 import json
 from configparser import ConfigParser
+import tempfile
 
 from flask import Flask, g, request
 from flask.logging import create_logger
@@ -16,6 +17,7 @@ CONF_FILE = os.environ.get('CONFIG', './config')
 CONF.read_file(open(CONF_FILE))
 app = Flask(__name__)  # pylint: disable=invalid-name
 LOG = create_logger(app)
+UNKNOWN_CODE = tempfile.NamedTemporaryFile()
 
 def sql_integrity_error(exc):
     """Extract useful info from """
@@ -205,6 +207,41 @@ def account_view():
                        [request.form['name']], one=True)
 
     return json.dumps(tuple(account))
+
+@app.route('/api/account/code_exists', methods=['POST'])
+def account_exists():
+    """
+    Returns true and account name if the given account identified by code exists
+    otherwise false and null. If the account does not exist the code is saved
+    in a temporary file as a side-effect.
+
+    Expects POST parameters:
+    - code
+
+    Returns 200 with json tuple (bool, account_name)
+    400 with error message
+    500 on broken code
+    """
+
+    try:
+        account_name = query_db('SELECT name FROM accounts WHERE barcode = ?',
+                                [request.form['code']], one=True)
+        if account_name is None:
+            UNKNOWN_CODE.write(request.form['code'].encode('utf-8'))
+            UNKNOWN_CODE.seek(0)
+        else:
+            account_name = tuple(account_name)[0]
+
+        return json.dumps((account_name is not None, account_name))
+    except KeyError:
+        return 'Incomplete request', 400
+    except sqlite3.IntegrityError as exc:
+        exc_str = sql_integrity_error(exc)
+        LOG.error(exc_str)
+        return exc_str, 400
+    except sqlite3.OperationalError as exc:
+        LOG.error(exc)
+        return exc, 400
 
 @app.route('/api/money/add', methods=['POST'])
 def money_add():
