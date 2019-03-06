@@ -304,7 +304,8 @@ def money_view():
     - name
     - password
 
-    Returns 200 with json tuple (amount, transaction name, timestamp)
+    Returns 200 with json tuple (amount, transaction name, timestamp, drink
+                                 barcode if available)
     400 with error message
     500 on broken code
     """
@@ -315,7 +316,7 @@ def money_view():
 
     try:
         transactions = query_db(
-            'SELECT 0-drinks.price as amount, drinks.name as name, pay_logs.timestamp as timestamp FROM pay_logs INNER JOIN drinks ON pay_logs.drink_id=drinks.id WHERE pay_logs.account_id=? UNION SELECT amount, ? as drink_name, timestamp FROM money_logs WHERE account_id=? ORDER BY timestamp DESC',  # pylint: disable=line-too-long
+            'SELECT 0-drinks.price as amount, drinks.name as name, pay_logs.timestamp as timestamp, drinks.barcode as barcode FROM pay_logs INNER JOIN drinks ON pay_logs.drink_id=drinks.id WHERE pay_logs.account_id=? UNION SELECT amount, ? as drink_name, timestamp, "" as drinks_barcode FROM money_logs WHERE account_id=? ORDER BY timestamp DESC',  # pylint: disable=line-too-long
             [account_id, 'Guthaben aufgeladen', account_id]
         )
     except BadRequestKeyError:
