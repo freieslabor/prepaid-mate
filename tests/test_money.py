@@ -92,7 +92,7 @@ def test_money_add_negative(flask_server, create_account):
 
     req = requests.post('{}/money/add'.format(API_URL), data=data)
     assert req.status_code == 400
-    assert req.content == b'Zero/negative money given'
+    assert req.content == b'Negative amount would lead to negative balance'
 
     req = requests.post('{}/money/view'.format(API_URL), data=data)
     assert req.status_code == 200

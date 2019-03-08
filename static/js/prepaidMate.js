@@ -101,7 +101,7 @@ function modifyUser() {
 function addBalance() {
 	var balance = prompt("Aufladen:", "0.00");
 	//Regex 1 or more digits / comma or dot / exactly 2 digits
-	var regexBalance = new RegExp(/^(\d+((\,|\.)\d{2})?)$/);
+	var regexBalance = new RegExp(/^(-?\d+((\,|\.)\d{2})?)$/);
 
 	if (regexBalance.test(balance)) {
 		balance = balance.replace(',', '.'); //balance can not contain ','

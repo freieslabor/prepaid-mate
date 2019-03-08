@@ -270,10 +270,13 @@ def money_add():
             LOG.info('Money for "%s" not given in cents', request.form['name'])
             return 'Money must be specified in cents', 400
 
-        if money <= 0:
-            LOG.info('Negative amount of money given for account "%s"',
-                     request.form['name'])
-            return 'Zero/negative money given', 400
+        account_saldo = query_db('SELECT saldo FROM accounts WHERE id = ?',
+                                 [account_id], one=True)
+        account_saldo = tuple(account_saldo)[0]
+
+        if account_saldo + money < 0:
+            LOG.info('Negative amount would lead to negative balance')
+            return 'Negative amount would lead to negative balance', 400
 
         query_db('UPDATE accounts SET saldo=saldo+? WHERE id=?',
                  [money, account_id])
