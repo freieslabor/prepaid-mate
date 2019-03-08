@@ -68,6 +68,12 @@ Or start the development server in debug mode:
 Now head your browser to `http://localhost:5000/static/index.html` to start.
 Do not use the development server in a production environment.
 
+In order to start the client:
+
+.. code-block:: bash
+
+    (prepaid-drinks-venv) $ python -m prepaid_mate.scanner_client
+
 Test it
 =======
 

@@ -13,10 +13,10 @@ from flask.logging import create_logger
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import BadRequestKeyError
 
+app = Flask(__name__)  # pylint: disable=invalid-name
 CONF = ConfigParser()
 CONF_FILE = os.environ.get('CONFIG', './config')
 CONF.read_file(open(CONF_FILE))
-app = Flask(__name__)  # pylint: disable=invalid-name
 LOG = create_logger(app)
 UNKNOWN_CODE = tempfile.NamedTemporaryFile()
 
@@ -417,3 +417,7 @@ def last_unknown_code():
         UNKNOWN_CODE.seek(0)
 
     return code
+
+
+if __name__ == "__main__":
+    app.run(host='127.0.0.1')
