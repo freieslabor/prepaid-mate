@@ -1,0 +1,2 @@
+SUBSYSTEM=="hid", ATTRS{idVendor}=="05e0", ATTRS{idProduct}=="0200", GROUP="input", MODE="0660"
+SUBSYSTEM=="hid", ATTRS{idVendor}=="16c0", ATTRS{idProduct}=="27db", GROUP="input", MODE="0660"
