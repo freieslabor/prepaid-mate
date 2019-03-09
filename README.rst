@@ -79,6 +79,10 @@ Test it
 
 Assuming you performed the steps above:
 
+.. code-block:: bash
+
+    $ apt-get install umockdev
+
 Activate your virtualenv one more time:
 
 .. code-block:: bash
