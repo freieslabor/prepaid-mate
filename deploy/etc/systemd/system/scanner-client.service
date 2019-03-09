@@ -1,0 +1,17 @@
+[Unit]
+Description=Prepaid Mate Scanner Client
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+User=someuser
+Group=somegroup
+WorkingDirectory=/path/to/prepaid-mate
+ExecStart=/path/to/prepaid-mate/prepaid-mate-venv/bin/scanner-client
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
