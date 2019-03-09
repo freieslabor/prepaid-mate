@@ -16,6 +16,7 @@ Table of contents
 
 * `Required Hardware <#required-hardware>`_
 * `Software Components <#software-components>`_
+* `Installation and Configurations <#installation-and-configuration>`_
 * `Run it <#run-it>`_
 * `Test it <#test-it>`_
 * `Deploy it <#deploy-it>`_
@@ -38,8 +39,8 @@ Software Components
 * scanner client listening to barcode/RFID events and triggering payments
 * simple, static web frontend (currently in development)
 
-Run it
-======
+Installation and configuration
+==============================
 
 Assuming you're running Debian (or Ubuntu) and want to use a virtualenv:
 
@@ -60,7 +61,22 @@ Now install the Python dependencies via pip inside the virtualenv:
 
     (prepaid-mate-venv) $ pip install -r requirements.txt
 
+In order to install Prepaid Mate in editable (development) mode use:
+
+.. code-block:: bash
+
+    (prepaid-mate-venv) $ pip install -e .
+
+Otherwise:
+
+.. code-block:: bash
+
+    (prepaid-mate-venv) $ pip install .
+
 Create a config file named `config`. Use `config.sample` as a starting point.
+
+Run it
+======
 
 Now start the development server:
 
@@ -75,7 +91,8 @@ Or start the development server in debug mode:
     (prepaid-mate-venv) $ FLASK_DEBUG=1 flask run
 
 Now head your browser to `http://localhost:5000/static/index.html` to start.
-Do not use the development server in a production environment.
+Do not use the development server in a production environment. See below how to
+deploy Prepaid Mate.
 
 In order to start the client:
 
@@ -127,6 +144,7 @@ Now enable the nginx site, enable the gunicorn service and (re)start the service
 
     $ ln -s /etc/nginx/sites-available/prepaid_mate /etc/nginx/sites-enabled/prepaid_mate
     $ systemctl enable gunicorn.service
+    $ systemctl enable scanner-client.service
     $ systemctl restart nginx.service gunicorn.service
 
 Prepaid Mate should now respond at http://localhost/.
