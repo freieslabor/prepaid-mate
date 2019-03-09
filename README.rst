@@ -46,7 +46,7 @@ Assuming you're running Debian (or Ubuntu) and want to use a virtualenv:
 
 .. code-block:: bash
 
-    $ apt-get install python3 python3-virtualenv python3-pip virtualenv
+    $ apt-get install python3 python3-virtualenv python3-pip virtualenv espeak
 
 Create the virtualenv and activate it:
 
