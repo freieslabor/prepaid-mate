@@ -1,6 +1,7 @@
 [Unit]
-Description=gunicorn daemon
+Description=gunicorn Daemon for Prepaid Mate
 After=network.target
+StartLimitIntervalSec=0
 
 [Service]
 User=someuser
@@ -9,6 +10,7 @@ WorkingDirectory=/path/to/prepaid-mate
 ExecStart=/path/to/prepaid-mate/prepaid-mate-venv/bin/gunicorn --bind unix:/tmp/prepaid_mate.sock --workers 1 -m 777 wsgi
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
+Restart=always
 
 [Install]
 WantedBy=multi-user.target
