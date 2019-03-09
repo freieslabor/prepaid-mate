@@ -163,6 +163,9 @@ class ScannerClient:
                 rfid_dev.ungrab()
 
 
-if __name__ == '__main__':
+def main():
     CLIENT = ScannerClient(CONF_FILE)
     CLIENT.run()
+
+if __name__ == '__main__':
+    main()
