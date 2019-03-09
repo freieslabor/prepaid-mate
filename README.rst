@@ -18,6 +18,7 @@ Table of contents
 * `Software Components <#software-components>`_
 * `Run it <#run-it>`_
 * `Test it <#test-it>`_
+* `Deploy it <#deploy-it>`_
 
 Required Hardware
 =================
@@ -108,6 +109,27 @@ Now run the test suite:
 .. code-block:: bash
 
     (prepaid-mate-venv) $ pytest -v
+
+Deploy it
+=========
+
+.. code-block:: bash
+
+    $ apt-get install nginx
+
+Configurations for udev, gunicorn and nginx are located in deploy/. Adjust
+path, user and group as needed and copy these files to their corresponding
+location in your target filesystem.
+
+Now enable the nginx site, enable the gunicorn service and (re)start the services:
+
+.. code-block:: bash
+
+    $ ln -s /etc/nginx/sites-available/prepaid_mate /etc/nginx/sites-enabled/prepaid_mate
+    $ systemctl enable gunicorn.service
+    $ systemctl restart nginx.service gunicorn.service
+
+Prepaid Mate should now respond at http://localhost/.
 
 .. |python3.5| image:: https://img.shields.io/badge/python-3.5-blue.svg
     :alt: Supports python3.5
