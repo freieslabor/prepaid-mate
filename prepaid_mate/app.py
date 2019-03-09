@@ -9,7 +9,6 @@ import tempfile
 import time
 
 from flask import Flask, g, request
-from flask.logging import create_logger
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.exceptions import BadRequestKeyError
 
@@ -17,7 +16,6 @@ app = Flask(__name__)  # pylint: disable=invalid-name
 CONF = ConfigParser()
 CONF_FILE = os.environ.get('CONFIG', './config')
 CONF.read_file(open(CONF_FILE))
-LOG = create_logger(app)
 UNKNOWN_CODE = tempfile.NamedTemporaryFile()
 
 def sql_integrity_error(exc):
@@ -71,21 +69,21 @@ def password_check(req):
         account = query_db('SELECT id, password_hash FROM accounts WHERE name = ?',
                            [req.form['name']], one=True)
         if 'password' not in req.form:
-            LOG.info('password check failed: no password given')
+            app.logger.info('password check failed: no password given')
             raise KeyError()
     except KeyError:
-        LOG.info('password check failed: no username given')
+        app.logger.info('password check failed: no username given')
         raise KeyError('Incomplete request')
 
     try:
         account_id, password_hash = tuple(account)
     except TypeError:
-        LOG.info('password check failed: no such account "%s" in database',
+        app.logger.info('password check failed: no such account "%s" in database',
                  req.form['name'])
         raise TypeError('No such account in database')
 
     if not check_password_hash(password_hash, req.form['password']):
-        LOG.info('password check failed: wrong password for account "%s"',
+        app.logger.info('password check failed: wrong password for account "%s"',
                  req.form['name'])
         raise ValueError('Wrong password')
 
@@ -122,18 +120,18 @@ def account_create():
             raise BadRequestKeyError
 
         get_db().commit()
-        LOG.info('Account "%s (identifier: "%s") created',
+        app.logger.info('Account "%s (identifier: "%s") created',
                  request.form['name'], request.form['code'])
     except BadRequestKeyError:
         exc_str = 'Incomplete request'
-        LOG.warning(exc_str)
+        app.logger.warning(exc_str)
         return exc_str, 400
     except sqlite3.IntegrityError as exc:
         exc_str = sql_integrity_error(exc)
-        LOG.error(exc_str)
+        app.logger.error(exc_str)
         return exc_str
     except sqlite3.OperationalError as exc:
-        LOG.error(exc)
+        app.logger.error(exc)
         return exc, 400
 
     return 'ok'
@@ -171,17 +169,17 @@ def account_modify():
             raise BadRequestKeyError
 
         get_db().commit()
-        LOG.info('Account "%s modified', request.form['name'])
+        app.logger.info('Account "%s modified', request.form['name'])
     except BadRequestKeyError:
         exc_str = 'Incomplete request'
-        LOG.warning(exc_str)
+        app.logger.warning(exc_str)
         return exc_str, 400
     except sqlite3.IntegrityError as exc:
         exc_str = sql_integrity_error(exc)
-        LOG.error(exc_str)
+        app.logger.error(exc_str)
         return exc_str, 400
     except sqlite3.OperationalError as exc:
-        LOG.error(exc)
+        app.logger.error(exc)
         return exc, 400
 
     return 'ok'
@@ -238,10 +236,10 @@ def account_exists():
         return 'Incomplete request', 400
     except sqlite3.IntegrityError as exc:
         exc_str = sql_integrity_error(exc)
-        LOG.error(exc_str)
+        app.logger.error(exc_str)
         return exc_str, 400
     except sqlite3.OperationalError as exc:
-        LOG.error(exc)
+        app.logger.error(exc)
         return exc, 400
 
 @app.route('/api/money/add', methods=['POST'])
@@ -267,7 +265,7 @@ def money_add():
         try:
             money = int(request.form['money'])
         except ValueError:
-            LOG.info('Money for "%s" not given in cents', request.form['name'])
+            app.logger.info('Money for "%s" not given in cents', request.form['name'])
             return 'Money must be specified in cents', 400
 
         account_saldo = query_db('SELECT saldo FROM accounts WHERE id = ?',
@@ -275,7 +273,7 @@ def money_add():
         account_saldo = tuple(account_saldo)[0]
 
         if account_saldo + money < 0:
-            LOG.info('Negative amount would lead to negative balance')
+            app.logger.info('Negative amount would lead to negative balance')
             return 'Negative amount would lead to negative balance', 400
 
         query_db('UPDATE accounts SET saldo=saldo+? WHERE id=?',
@@ -283,7 +281,7 @@ def money_add():
         query_db('INSERT INTO money_logs (account_id, amount, timestamp) VALUES (?, ?, strftime("%s", "now"))',  # pylint: disable=line-too-long
                  [account_id, money])
         get_db().commit()
-        LOG.info('Added %d cents to account "%s"', money, request.form['name'])
+        app.logger.info('Added %d cents to account "%s"', money, request.form['name'])
     except Exception as exc:  # pylint: disable=broad-except
         get_db().rollback()
         if isinstance(exc, (BadRequestKeyError, KeyError)):
@@ -293,7 +291,7 @@ def money_add():
         else:
             exc_str = str(exc)
 
-        LOG.error(exc_str)
+        app.logger.error(exc_str)
         return exc_str, 400
 
     return 'ok'
@@ -324,11 +322,11 @@ def money_view():
         )
     except BadRequestKeyError:
         exc_str = 'Incomplete request'
-        LOG.warning(exc_str)
+        app.logger.warning(exc_str)
         return exc_str, 400
     except sqlite3.IntegrityError as exc:
         exc_str = sql_integrity_error(exc)
-        LOG.error(exc_str)
+        app.logger.error(exc_str)
         return exc_str, 400
 
     return json.dumps([tuple(row) for row in transactions])
@@ -350,7 +348,7 @@ def payment_perform():
     """
     if request.form['superuserpassword'] != \
         CONF.get('DEFAULT', 'superuser-password'):
-        LOG.warning('Payment with wrong super user password')
+        app.logger.warning('Payment with wrong super user password')
         return 'Wrong superuserpassword', 400
 
     try:
@@ -360,12 +358,12 @@ def payment_perform():
             account_id, saldo = tuple(account)
         except TypeError:
             exc_str = 'Barcode does not belong to an account'
-            LOG.warning(exc_str)
+            app.logger.warning(exc_str)
             return exc_str, 400
 
         if account_id is None:
             exc_str = 'No such account in database'
-            LOG.warning(exc_str)
+            app.logger.warning(exc_str)
             return exc_str, 400
 
         drink = query_db('SELECT id, price FROM drinks WHERE barcode=?',
@@ -374,12 +372,12 @@ def payment_perform():
             drink_id, drink_price = tuple(drink)
         except TypeError:
             exc_str = 'No such drink in database'
-            LOG.warning(exc_str)
+            app.logger.warning(exc_str)
             return exc_str, 400
 
         if saldo - drink_price < 0:
             exc_str = 'Insufficient funds'
-            LOG.warning(exc_str)
+            app.logger.warning(exc_str)
             return exc_str, 400
 
         query_db('INSERT INTO pay_logs (account_id, drink_id, timestamp) VALUES (?, ?, strftime("%s", "now"))',  # pylint: disable=line-too-long
@@ -387,7 +385,7 @@ def payment_perform():
         query_db('UPDATE accounts SET saldo=saldo-? WHERE id=?',
                  [drink_price, account_id])
         get_db().commit()
-        LOG.warning('Account ID "%s" ordered %s (%d cents), new saldo=%d cents',
+        app.logger.warning('Account ID "%s" ordered %s (%d cents), new saldo=%d cents',
                     account_id, drink_id, drink_price, saldo)
         return str(saldo - drink_price)
     except Exception as exc:  # pylint: disable=broad-except
@@ -399,7 +397,7 @@ def payment_perform():
         else:
             exc_str = str(exc)
 
-        LOG.warning(exc_str)
+        app.logger.warning(exc_str)
         return exc_str, 400
 
 @app.route('/api/last_unknown_code', methods=['GET'])
