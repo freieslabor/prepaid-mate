@@ -42,14 +42,14 @@ Create the virtualenv and activate it:
 
 .. code-block:: bash
 
-    $ virtualenv -p python3 prepaid-drinks-venv
-    $ source prepaid-drinks-venv/bin/activate
+    $ virtualenv -p python3 prepaid-mate-venv
+    $ source prepaid-mate-venv/bin/activate
 
 Now install the Python dependencies via pip inside the virtualenv:
 
 .. code-block:: bash
 
-    (prepaid-drinks-venv) $ pip install -r requirements.txt
+    (prepaid-mate-venv) $ pip install -r requirements.txt
 
 Create a config file named `config`. Use `config.sample` as a starting point.
 
@@ -57,13 +57,13 @@ Now start the development server:
 
 .. code-block:: bash
 
-    (prepaid-drinks-venv) $ flask run
+    (prepaid-mate-venv) $ flask run
 
 Or start the development server in debug mode:
 
 .. code-block:: bash
 
-    (prepaid-drinks-venv) $ FLASK_DEBUG=1 flask run
+    (prepaid-mate-venv) $ FLASK_DEBUG=1 flask run
 
 Now head your browser to `http://localhost:5000/static/index.html` to start.
 Do not use the development server in a production environment.
@@ -72,7 +72,7 @@ In order to start the client:
 
 .. code-block:: bash
 
-    (prepaid-drinks-venv) $ python -m prepaid_mate.scanner_client
+    (prepaid-mate-venv) $ python -m prepaid_mate.scanner_client
 
 Test it
 =======
@@ -87,19 +87,19 @@ Activate your virtualenv one more time:
 
 .. code-block:: bash
 
-    $ source prepaid-drinks-venv/bin/activate
+    $ source prepaid-mate-venv/bin/activate
 
 Now install the testing dependencies via pip inside the virtualenv:
 
 .. code-block:: bash
 
-    (prepaid-drinks-venv) $ pip install -r test-requirements.txt
+    (prepaid-mate-venv) $ pip install -r test-requirements.txt
 
 Now run the test suite:
 
 .. code-block:: bash
 
-    (prepaid-drinks-venv) $ pytest -v
+    (prepaid-mate-venv) $ pytest -v
 
 .. |python3.5| image:: https://img.shields.io/badge/python-3.5-blue.svg
     :alt: Supports python3.5
