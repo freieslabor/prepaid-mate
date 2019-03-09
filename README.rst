@@ -1,4 +1,4 @@
-|python3.5| |python3.6| |python3.7| |build-status| |lgtm-alerts| |lgtm-grade|
+|python3.5| |python3.6| |python3.7| |build-status| |lgtm-alerts| |lgtm-grade-python| |lgtm-grade-javascript|
 
 Prepaid Mate
 ============
@@ -129,6 +129,10 @@ Now run the test suite:
     :alt: Total lgtm alerts
     :target: https://lgtm.com/projects/g/freieslabor/prepaid-mate/alerts/
 
-.. |lgtm-grade| image:: https://img.shields.io/lgtm/grade/python/g/freieslabor/prepaid-mate.svg?logo=lgtm&logoWidth=18
+.. |lgtm-grade-python| image:: https://img.shields.io/lgtm/grade/python/g/freieslabor/prepaid-mate.svg?logo=lgtm&logoWidth=18
     :alt: Language grade: Python
     :target: https://lgtm.com/projects/g/freieslabor/prepaid-mate/context:python
+
+.. |lgtm-grade-javascript| image:: https://img.shields.io/lgtm/grade/javascript/g/freieslabor/prepaid-mate.svg?logo=lgtm&logoWidth=18
+    :alt: Language grade: Javascript
+    :target: https://lgtm.com/projects/g/freieslabor/prepaid-mate/context:javascript
