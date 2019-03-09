@@ -11,6 +11,14 @@ computer or smartphone to your account. Thirsty? Start scanning! Identify
 yourself with your personal RFID token (or barcode) and scan the barcode on the
 drink. Cheers!
 
+Table of contents
+=================
+
+* `Required Hardware <#required-hardware>`_
+* `Software Components <#software-components>`_
+* `Run it <#run-it>`_
+* `Test it <#test-it>`_
+
 Required Hardware
 =================
 
