@@ -98,7 +98,7 @@ In order to start the client:
 
 .. code-block:: bash
 
-    (prepaid-mate-venv) $ python -m prepaid_mate.scanner_client
+    (prepaid-mate-venv) $ scanner-client
 
 Test it
 =======
