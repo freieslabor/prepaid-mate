@@ -150,7 +150,7 @@ def scanner_client(caplog):
                 cmd += ' -e {dev}={path}{name}.events' \
                     .format(path='tests/umockdev/', name=name, dev=dev)
 
-        cmd += ' -- python -m prepaid_mate.scanner_client'
+        cmd += ' -- scanner-client'
         procs.append(start_process_operational(cmd, configs[-1], 'Prepaid Mate up and running',
                                                names[-1]))
 
