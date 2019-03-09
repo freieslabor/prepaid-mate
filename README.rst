@@ -16,7 +16,7 @@ Table of contents
 
 * `Required Hardware <#required-hardware>`_
 * `Software Components <#software-components>`_
-* `Installation and Configurations <#installation-and-configuration>`_
+* `Installation and Configuration <#installation-and-configuration>`_
 * `Run it <#run-it>`_
 * `Test it <#test-it>`_
 * `Deploy it <#deploy-it>`_
