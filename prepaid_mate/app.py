@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Flask Prepaid Mate server"""
 
+import logging
 import os
 import sqlite3
 import json
@@ -419,3 +420,7 @@ def last_unknown_code():
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1')
+else:
+    gunicorn_logger = logging.getLogger('gunicorn.error')
+    app.logger.handlers = gunicorn_logger.handlers
+    app.logger.setLevel(gunicorn_logger.level)
