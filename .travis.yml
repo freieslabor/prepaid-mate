@@ -10,5 +10,6 @@ python:
 - 3.7
 install:
 - pip install "setuptools>=36.3" -r test-requirements.txt
+- pip install .
 script:
 - pytest -v
