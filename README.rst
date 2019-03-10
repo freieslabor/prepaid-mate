@@ -67,13 +67,8 @@ In order to install Prepaid Mate in editable (development) mode use:
 
     (prepaid-mate-venv) $ pip install -e .
 
-Otherwise:
-
-.. code-block:: bash
-
-    (prepaid-mate-venv) $ pip install .
-
-Create a config file named `config`. Use `config.sample` as a starting point.
+Create a config file named ``config``. Use ``config.sample`` as a starting
+point.
 
 Run it
 ======
@@ -90,7 +85,7 @@ Or start the development server in debug mode:
 
     (prepaid-mate-venv) $ FLASK_DEBUG=1 flask run
 
-Now head your browser to `http://localhost:5000/static/index.html` to start.
+Now head your browser to ``http://localhost:5000/static/index.html`` to start.
 Do not use the development server in a production environment. See below how to
 deploy Prepaid Mate.
 
@@ -130,13 +125,45 @@ Now run the test suite:
 Deploy it
 =========
 
+There is no need to clone Prepaid Mate manually. All of the above steps are not
+necessary for deployment.
+
+Assuming you're running Debian (or Ubuntu) and want to use a virtualenv:
+
 .. code-block:: bash
 
-    $ apt-get install nginx
+    $ apt-get install python3 python3-virtualenv python3-pip virtualenv nginx espeak
 
-Configurations for udev, gunicorn and nginx are located in deploy/. Adjust
-path, user and group as needed and copy these files to their corresponding
-location in your target filesystem.
+Now switch to the user that should run Prepaid Mate and create a directory for
+the venv and configs:
+
+.. code-block:: bash
+
+    $ su someuser
+    $ mkdir -p /your/desired/location/
+    $ cd /your/desired/location/
+
+Create the virtualenv ``prod-venv`` (or name it as you like) and activate it:
+
+.. code-block:: bash
+
+    $ virtualenv -p python3 prod-venv
+    $ source prod-venv/bin/activate
+
+Now install gunicorn (WSGI server) and Prepaid Mate:
+
+.. code-block:: bash
+
+    (prod-venv) $ pip install gunicorn
+    (prod-venv) $ pip install -e https://github.com/freieslabor/prepaid-mate.git#egg=prepaid-mate
+
+Configurations for udev, gunicorn and nginx are located in
+``prod-venv/src/prepaid-mate/deploy/``. Adjust path, user and group as needed
+and copy these files to their corresponding location in your target filesystem.
+
+Create a config file named config. Use
+``prod-venv/src/prepaid-mate/config.sample`` as a starting point. You should
+turn the debug option off.
 
 Now enable the nginx site, enable the gunicorn service and (re)start the services:
 
@@ -147,7 +174,7 @@ Now enable the nginx site, enable the gunicorn service and (re)start the service
     $ systemctl enable scanner-client.service
     $ systemctl restart nginx.service gunicorn.service
 
-Prepaid Mate should now respond at http://localhost/.
+Prepaid Mate should now respond at ``http://localhost/``.
 
 .. |python3.5| image:: https://img.shields.io/badge/python-3.5-blue.svg
     :alt: Supports python3.5
