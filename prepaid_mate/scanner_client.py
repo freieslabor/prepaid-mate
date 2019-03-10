@@ -12,9 +12,6 @@ import json
 import requests
 from evdev import InputDevice, categorize, ecodes
 
-CONF_FILE = os.environ.get('CONFIG', './config')
-CONF_SECTION = 'scanner-client'
-
 class UserError(Exception):
     """Errors the user is responsible for."""
 
@@ -32,11 +29,13 @@ class ScannerClient:
     A user is identified by barcode or RFID code.
     A drink is always identified by barcode.
     """
+    CONF_SECTION = 'scanner-client'
+
     def __init__(self, config_file):
         self.conf = ConfigParser()
         self.conf.read_file(open(config_file))
-        self.debug = self.conf.getboolean(CONF_SECTION, 'debug')
-        self.api_url = self.conf.get(CONF_SECTION, 'api-url')
+        self.debug = self.conf.getboolean(ScannerClient.CONF_SECTION, 'debug')
+        self.api_url = self.conf.get(ScannerClient.CONF_SECTION, 'api-url')
         self.mode = Mode.ACCOUNT
         self.account_code = None
         self.order_time = None
@@ -47,7 +46,7 @@ class ScannerClient:
 
     def log_and_speak(self, msg, level=logging.INFO):
         """Logs the given message and uses espeak to inform the user"""
-        self.logger.info(msg)
+        self.logger.log(level, msg)
         if not self.debug:
             os.system('/usr/bin/espeak "{msg}"'.format(msg=msg))
 
@@ -66,7 +65,7 @@ class ScannerClient:
             self.process_code_account(barcode)
             self.mode = Mode.ORDER
         elif self.mode is Mode.ORDER:
-            if barcode == self.conf.get(CONF_SECTION, 'reset-barcode'):
+            if barcode == self.conf.get(ScannerClient.CONF_SECTION, 'reset-barcode'):
                 self.log_and_speak('reset barcode recognized, ignoring order')
             else:
                 self.process_barcode_order(barcode)
@@ -123,8 +122,8 @@ class ScannerClient:
 
     def run(self):
         """Endless loop grabbing content from barcode and RFID scanner."""
-        scan_dev = InputDevice(self.conf.get(CONF_SECTION, 'barcode-device'))
-        rfid_dev = InputDevice(self.conf.get(CONF_SECTION, 'rfid-device'))
+        scan_dev = InputDevice(self.conf.get(ScannerClient.CONF_SECTION, 'barcode-device'))
+        rfid_dev = InputDevice(self.conf.get(ScannerClient.CONF_SECTION, 'rfid-device'))
         code = ''
         try:
             if not self.debug:
@@ -155,8 +154,7 @@ class ScannerClient:
                         finally:
                             code = ''
                     else:
-                        self.logger.warning('got unexpected {keycode} from {dev}'.format(
-                                            keycode=event.keycode, dev=dev))
+                        self.logger.warning('got unexpected %s from %s', event.keycode, dev)
         finally:
             if not self.debug:
                 scan_dev.ungrab()
@@ -164,8 +162,10 @@ class ScannerClient:
 
 
 def main():
-    CLIENT = ScannerClient(CONF_FILE)
-    CLIENT.run()
+    """Start scanner client with ./config"""
+    conf_file = os.environ.get('CONFIG', './config')
+    client = ScannerClient(conf_file)
+    client.run()
 
 if __name__ == '__main__':
     main()

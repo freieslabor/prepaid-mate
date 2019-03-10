@@ -80,12 +80,12 @@ def password_check(req):
         account_id, password_hash = tuple(account)
     except TypeError:
         app.logger.info('password check failed: no such account "%s" in database',
-                 req.form['name'])
+                        req.form['name'])
         raise TypeError('No such account in database')
 
     if not check_password_hash(password_hash, req.form['password']):
         app.logger.info('password check failed: wrong password for account "%s"',
-                 req.form['name'])
+                        req.form['name'])
         raise ValueError('Wrong password')
 
     return account_id
@@ -122,7 +122,7 @@ def account_create():
 
         get_db().commit()
         app.logger.info('Account "%s (identifier: "%s") created',
-                 request.form['name'], request.form['code'])
+                        request.form['name'], request.form['code'])
     except BadRequestKeyError:
         exc_str = 'Incomplete request'
         app.logger.warning(exc_str)
@@ -387,7 +387,7 @@ def payment_perform():
                  [drink_price, account_id])
         get_db().commit()
         app.logger.warning('Account ID "%s" ordered %s (%d cents), new saldo=%d cents',
-                    account_id, drink_id, drink_price, saldo)
+                           account_id, drink_id, drink_price, saldo)
         return str(saldo - drink_price)
     except Exception as exc:  # pylint: disable=broad-except
         get_db().rollback()
@@ -421,6 +421,6 @@ def last_unknown_code():
 if __name__ == "__main__":
     app.run(host='127.0.0.1')
 else:
-    gunicorn_logger = logging.getLogger('gunicorn.error')
-    app.logger.handlers = gunicorn_logger.handlers
-    app.logger.setLevel(gunicorn_logger.level)
+    GUNICORN_LOGGER = logging.getLogger('gunicorn.error')
+    app.logger.handlers = GUNICORN_LOGGER.handlers
+    app.logger.setLevel(GUNICORN_LOGGER.level)
