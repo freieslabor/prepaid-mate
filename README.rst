@@ -155,7 +155,7 @@ Now install gunicorn (WSGI server) and Prepaid Mate:
 .. code-block:: bash
 
     (prod-venv) $ pip install gunicorn
-    (prod-venv) $ pip install -e https://github.com/freieslabor/prepaid-mate.git#egg=prepaid-mate
+    (prod-venv) $ pip install -e git+https://github.com/freieslabor/prepaid-mate.git#egg=prepaid-mate
 
 Configurations for udev, gunicorn and nginx are located in
 ``prod-venv/src/prepaid-mate/deploy/``. Adjust path, user and group as needed
