@@ -374,7 +374,7 @@ def money_view():
 def payment_perform():
     """
     Perform payment transaction ("drink_barcode") on account identified by
-    "account_code". This is authorized on "superuserpassword".
+    "account_code". This is authorized with "superuserpassword".
 
     Expects POST parameters:
     - superuserpassword
