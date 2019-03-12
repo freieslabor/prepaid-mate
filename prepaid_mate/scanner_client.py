@@ -35,7 +35,7 @@ class ScannerClient:
         self.conf = ConfigParser()
         self.conf.read_file(open(config_file))
         self.debug = self.conf.getboolean(ScannerClient.CONF_SECTION, 'debug')
-        self.api_url = self.conf.get(ScannerClient.CONF_SECTION, 'api-url')
+        self.api_url = self.conf.get('DEFAULT', 'api-url')
         self.mode = Mode.ACCOUNT
         self.account_code = None
         self.order_time = None
