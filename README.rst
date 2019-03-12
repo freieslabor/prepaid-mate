@@ -132,7 +132,7 @@ Assuming you're running Debian (or Ubuntu) and want to use a virtualenv:
 
 .. code-block:: bash
 
-    $ apt-get install python3 python3-virtualenv python3-pip virtualenv nginx espeak
+    $ apt-get install python3 python3-virtualenv python3-pip virtualenv nginx espeak git
 
 Now switch to the user that should run Prepaid Mate and create a directory for
 the venv and configs:
