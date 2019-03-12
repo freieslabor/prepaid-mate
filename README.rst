@@ -139,6 +139,7 @@ the venv and configs:
 
 .. code-block:: bash
 
+    $ adduser prepaid-mate input
     $ su someuser
     $ mkdir -p /your/desired/location/
     $ cd /your/desired/location/
