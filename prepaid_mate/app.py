@@ -145,32 +145,70 @@ def account_modify():
     Expects POST parameters:
     - name
     - password
-    - new_name
-    - new_password
-    - new_code
+    - new_name (optional)
+    - new_password (optional)
+    - new_code (optional)
+
+    Alternative POST parameters:
+    - superuserpassword
+    - name
+    - new_name (optional)
+    - new_password (optional)
+    - new_code (optional)
 
     Returns 200 "ok"
     400 with error message
     500 on broken code
     """
-    try:
-        password_check(request)
-    except (KeyError, TypeError, ValueError) as exc:
-        return exc.args[0], 400
+    if 'superuserpassword' in request.form:
+        if request.form['superuserpassword'] != \
+            CONF.get('DEFAULT', 'superuser-password'):
+            app.logger.warning('Account modification with wrong super user password')
+            return 'Wrong superuserpassword', 400
+
+        account = query_db('SELECT id FROM accounts WHERE name=?', [request.form['name']], one=True)
+
+        if account is None:
+            exc_str = 'No such account in database'
+            app.logger.warning(exc_str)
+            return exc_str, 400
+
+    else:
+        try:
+            password_check(request)
+        except (KeyError, TypeError, ValueError) as exc:
+            return exc.args[0], 400
 
     try:
-        new_password_hash = generate_password_hash(request.form['new_password'])
-        query_db('UPDATE accounts SET name=?, password_hash=?, barcode=? WHERE name=?',
-                 [request.form['new_name'], new_password_hash,
-                  request.form['new_code'], request.form['name']])
+        if 'new_code' in request.form:
+            if request.form['new_code'] == '':
+                get_db().rollback()
+                raise BadRequestKeyError
 
-        if request.form['new_name'] == '' or request.form['new_password'] == '' \
-            or request.form['new_code'] == '':
-            get_db().rollback()
-            raise BadRequestKeyError
+            query_db('UPDATE accounts SET barcode=? WHERE name=?',
+                     [request.form['new_code'], request.form['name']])
+
+        if 'new_password' in request.form:
+            if request.form['new_password'] == '':
+                get_db().rollback()
+                raise BadRequestKeyError
+
+            new_password_hash = generate_password_hash(request.form['new_password'])
+            query_db('UPDATE accounts SET password_hash=? WHERE name=?',
+                     [new_password_hash, request.form['name']])
+
+        if 'new_name' in request.form:
+            if request.form['new_name'] == '':
+                get_db().rollback()
+                raise BadRequestKeyError
+
+            query_db('UPDATE accounts SET name=? WHERE name=?',
+                     [request.form['new_name'], request.form['name']])
 
         get_db().commit()
-        app.logger.info('Account "%s modified', request.form['name'])
+        app.logger.info('Account "%s modified (name=%d, code=%d, password=%d)',
+                        request.form['name'], 'new_name' in request.form,
+                        'new_code' in request.form, 'new_password' in request.form)
     except BadRequestKeyError:
         exc_str = 'Incomplete request'
         app.logger.warning(exc_str)

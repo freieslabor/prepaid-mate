@@ -62,6 +62,40 @@ def test_account_modification_good(flask_server, create_account):
     assert req.status_code == 200
     assert req.content == b'ok'
 
+def test_account_modification_superuser_good(flask_server, create_account):
+    """Test if account modification works."""
+    import requests
+
+    config = flask_server
+    data = {
+        'superuserpassword': config['DEFAULT']['superuser-password'],
+        'name': create_account['name'],
+        'new_name': 'foo2',
+        'new_password': 'bar2',
+        'new_code': '456',
+    }
+
+    req = requests.post('{}/account/modify'.format(API_URL), data=data)
+    assert req.status_code == 200
+    assert req.content == b'ok'
+
+def test_account_modification_superuser_wrong_pw(flask_server, create_account):
+    """Test if account modification works."""
+    import requests
+
+    config = flask_server
+    data = {
+        'superuserpassword': '123',
+        'name': create_account['name'],
+        'new_name': 'foo2',
+        'new_password': 'bar2',
+        'new_code': '456',
+    }
+
+    req = requests.post('{}/account/modify'.format(API_URL), data=data)
+    assert req.status_code == 400
+    assert req.content == b'Wrong superuserpassword'
+
 def test_account_modification_inexistent(flask_server):
     """Test account modification of inexistent account."""
     import requests
@@ -88,31 +122,6 @@ def test_account_modification_empty(flask_server, create_account):
         {'new_name': '', 'new_password': 'bar2', 'new_code': '456'},
         {'new_name': 'foo2', 'new_password': '', 'new_code': '456'},
         {'new_name': 'foo2', 'new_password': 'bar2', 'new_code': ''},
-    )
-    for input_ in inputs:
-        data_tmp = copy.copy(data)
-        data_tmp = {**data_tmp, **input_}
-
-        req = requests.post('{}/account/modify'.format(API_URL), data=data_tmp)
-        assert req.status_code == 400
-        assert req.content == b'Incomplete request'
-
-def test_account_modification_incomplete(flask_server, create_account):
-    """Test if incomplete account modification fails as expected."""
-    import copy
-    import requests
-
-    data = create_account
-    inputs = (
-        {'new_password': 'bar2', 'new_code': '456'},
-        {'new_name': 'foo2', 'new_code': '456'},
-        {'new_name': 'foo2', 'new_password': 'bar2'},
-        {'new_password': 'bar2', 'new_code': '456'},
-        {'new_name': 'foo2', 'new_code': '456'},
-        {'new_name': 'foo2'},
-        {'new_password': 'bar2'},
-        {'new_code': '456'},
-
     )
     for input_ in inputs:
         data_tmp = copy.copy(data)
