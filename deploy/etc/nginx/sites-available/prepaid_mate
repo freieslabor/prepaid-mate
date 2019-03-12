@@ -3,7 +3,7 @@ server {
     server_name localhost;
 
     location / {
-            root /path/to/venv/src/prepaid-mate/static;
+            root /path/to/venv/src/prepaid-mate/prepaid_mate/static;
     }
 
     location /api {
