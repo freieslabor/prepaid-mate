@@ -16,7 +16,7 @@ function newAccount() {
 }
 
 function createNewAccount(){
-	createCredentials = {
+	var createCredentials = {
 		name: null,
 		code: null,
 		password: null
@@ -56,7 +56,7 @@ function login() {
 		"/api/account/view", credentials,
 	).done( //on successful login call dashboard()
 		function( accountData ) {
-			rfid = jQuery.parseJSON(accountData)[1];
+			var rfid = jQuery.parseJSON(accountData)[1];
 			credentials.rfid = rfid;
 			dashboard(accountData);
 		}
@@ -73,7 +73,7 @@ function login() {
 function dashboard(accountData) {
 	$('.view').hide();
 	$('#dashboard').show();
-	userName = jQuery.parseJSON(accountData)[0];
+	var userName = jQuery.parseJSON(accountData)[0];
 	$('#userName').html(userName)
 	getPaymentData();
 	getCurrentBalance(accountData);
@@ -132,7 +132,7 @@ function addBalance() {
 }
 
 function getCurrentBalance(accountData) {
-	currentBalance = jQuery.parseJSON(accountData);
+	var currentBalance = jQuery.parseJSON(accountData);
 	$('#userBalance').html(currentBalance[2] / 100 + "&euro;");
 }
 
@@ -141,19 +141,19 @@ function getPaymentData() {
 		"/api/money/view", credentials,
 	).done(//fetched transactionData successfully
 		function( transactionData ) {
-			transactions = jQuery.parseJSON(transactionData);
-			for(i = 0; i < transactions.length; i++) {
+			var transactions = jQuery.parseJSON(transactionData);
+			for(var i = 0; i < transactions.length; i++) {
 				//format unix time stamp to human readable format
-				dateTransaction = new Date(transactions[i][2]*1000).toLocaleDateString();
+				var dateTransaction = new Date(transactions[i][2]*1000).toLocaleDateString();
 				dateTransaction += " " + new Date(transactions[i][2]*1000).toLocaleTimeString();
 
-				link = transactions[i][3] == "" ?
+				var link = transactions[i][3] == "" ?
 					"#" : "https://www.codecheck.info/product.search?q=" + transactions[i][3];
 
 				//convert cents to euro
 				transactions[i][0] = transactions[i][0] / 100;
 				//check if negative
-				amountClass = transactions[i][0] < 0 ? "negativeAmount" : "positiveAmount";
+				var amountClass = transactions[i][0] < 0 ? "negativeAmount" : "positiveAmount";
 				//write '+' infront if positive
 				if(transactions[i][0] > 0)
 					transactions[i][0] = "+" + transactions[i][0];
