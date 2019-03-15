@@ -22,9 +22,9 @@ function createNewAccount(){
 		password: null
 	}
 
-	createCredentials.name = $('#createModifyUsername').val();
-	createCredentials.code = $('#createModifyRFID').val();
-	createCredentials.password = $('#createModifyPassword').val();
+	createCredentials.name = $('#createUsername').val();
+	createCredentials.code = $('#createRFID').val();
+	createCredentials.password = $('#createPassword').val();
 
 	$.post( //pass login credentials to api
 		"/api/account/create", createCredentials,
@@ -81,21 +81,21 @@ function dashboard(accountData) {
 
 function showModifyUser() {
 	$('.view').hide();
-	$('#newAccount').show();
+	$('#modifyAccount').show();
 	$('#createNewAccountButton').hide();
   $('#modifyAccountButton').show();
 
-	$('#createModifyUsername').val(credentials.name);
-	$('#createModifyRFID').val(credentials.rfid);
+	$('#modifyUsername').val(credentials.name);
+	$('#modifyRFID').val(credentials.rfid);
 
 
 }
 
 function modifyUser() {
 	//write credentials back to api
-	credentials.name = $('#createModifyUsername').val();
-	credentials.rfid = $('#createModifyRFID').val();
-	credentials.password = $('#createModifyPassword').val();
+	credentials.name = $('#modifyUsername').val();
+	credentials.rfid = $('#modifyRFID').val();
+	credentials.password = $('#modifyPassword').val();
 }
 
 function addBalance() {
