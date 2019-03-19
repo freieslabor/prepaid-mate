@@ -47,4 +47,4 @@ def main():
     exit(password_reset(conf_file, sys.argv[1], password))
 
 if __name__ == '__main__':
-    exit(main())
+    main()
