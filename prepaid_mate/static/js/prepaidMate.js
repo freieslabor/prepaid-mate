@@ -13,6 +13,16 @@ function newAccount() {
 	$('#newAccount').show();
 	$('#createNewAccountButton').show();
 	$('#modifyAccountButton').hide();
+
+	setInterval(function() {
+		if ($('#createModifyRFID').val() == "") {
+			$.get("/api/last_unknown_code", function(data) {
+				if (data != "" && $('#createModifyRFID').val() == "") {
+					$('#createModifyRFID').val(data);
+				}
+			});
+		}
+	}, 1000);
 }
 
 function createNewAccount(){
