@@ -58,7 +58,7 @@ class ScannerClient:
         recognition mode is entered.
         """
         if self.order_time and time.time() > self.order_time + timeout:
-            self.log_and_speak('order timeout, back in account scan mode')
+            self.logger.info('order timeout, back in account scan mode')
             self.reset()
 
         if self.mode is Mode.ACCOUNT:
