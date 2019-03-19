@@ -12,7 +12,7 @@ function newAccount() {
 	$('.view').hide();
 	$('#newAccount').show();
 	$('#createNewAccountButton').show();
-  $('#modifyAccountButton').hide();
+	$('#modifyAccountButton').hide();
 }
 
 function createNewAccount(){
