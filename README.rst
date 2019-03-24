@@ -22,6 +22,7 @@ Table of contents
 * `Test it <#test-it>`_
 * `Deploy it <#deploy-it>`_
 * `Update it <#update-it>`_
+* `FAQ <#faq>`_
 
 Design Principles
 =================
@@ -220,6 +221,21 @@ Now restart the services:
 
 Prepaid Mate should now respond at ``http://localhost/`` and you can start
 scanning.
+
+FAQ
+===
+
+I forgot my password. How can I reset it?
+-----------------------------------------
+
+Log in via SSH and run the reset password script with your username as
+argument:
+
+.. code-block:: bash
+
+    $ prepaid-mate-reset-pw someuser
+
+You will be asked to type a new password.
 
 .. |python3.5| image:: https://img.shields.io/badge/python-3.5-blue.svg
     :alt: Supports python3.5
