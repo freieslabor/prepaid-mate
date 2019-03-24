@@ -19,5 +19,6 @@ __name__ == '__main__' and setup(name='prepaid-mate',
     entry_points={
         'console_scripts': [
             'scanner-client = prepaid_mate.scanner_client:main',
+            'prepaid-mate-reset-pw = prepaid_mate.reset_password:main',
         ]
     })
