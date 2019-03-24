@@ -64,11 +64,12 @@ def query_db(query, args=(), one=False):
 def password_check(req):
     """
     Helper to check username and password, taken from "name" and "password"
-    POST parameters.
+    POST parameters. Returns (id, name) tuple.
     """
     try:
+        name = req.form['name']
         account = query_db('SELECT id, password_hash FROM accounts WHERE name = ?',
-                           [req.form['name']], one=True)
+                           [name], one=True)
         if 'password' not in req.form:
             app.logger.info('password check failed: no password given')
             raise KeyError()
@@ -79,16 +80,41 @@ def password_check(req):
     try:
         account_id, password_hash = tuple(account)
     except TypeError:
-        app.logger.info('password check failed: no such account "%s" in database',
-                        req.form['name'])
+        app.logger.info('password check failed: no such account "%s" in database', name)
         raise TypeError('No such account in database')
 
     if not check_password_hash(password_hash, req.form['password']):
-        app.logger.info('password check failed: wrong password for account "%s"',
-                        req.form['name'])
+        app.logger.info('password check failed: wrong password for account "%s"', name)
         raise ValueError('Wrong password')
 
-    return account_id
+    return (account_id, name)
+
+def superuser_password_check(req):
+    """
+    Helper to check superuser password and account name/code, taken from
+    superuserpassword", "name"/"account_code" POST parameters. Sets POST
+    parameter "name" for easier post-processing. Returns (id, name) tuple.
+    """
+    if req.form['superuserpassword'] != \
+        CONF.get('DEFAULT', 'superuser-password'):
+        app.logger.warning('Account modification with wrong super user password')
+        raise ValueError('Wrong superuserpassword')
+
+    try:
+        if 'name' in req.form:
+            account = query_db('SELECT id, name FROM accounts WHERE name=?', [req.form['name']], one=True)
+        elif 'account_code' in req.form:
+            account = query_db('SELECT id, name FROM accounts WHERE barcode=?', [req.form['account_code']], one=True)
+    except BadRequestKeyError:
+        app.logger.info('superuser password check failed: no name or account_code given')
+        raise KeyError('Incomplete request')
+
+    if account is None:
+        exc_str = 'No such account in database'
+        app.logger.warning(exc_str)
+        raise(exc_str)
+
+    return tuple(account)
 
 @app.route('/api/account/create', methods=['POST'])
 def account_create():
@@ -106,23 +132,24 @@ def account_create():
     500 on broken code
     """
     try:
-        drink_barcode = query_db('SELECT barcode FROM drinks WHERE barcode= ?',
-                                 [request.form['code']], one=True)
+        code = request.form['code']
+        password = request.form['password']
+        name = request.form['name']
+
+        drink_barcode = query_db('SELECT barcode FROM drinks WHERE barcode=?', [code], one=True)
         if drink_barcode is not None:
             return 'This code is already used for a drink', 400
 
-        password_hash = generate_password_hash(request.form['password'])
+        password_hash = generate_password_hash(password)
         query_db('INSERT INTO accounts (name, password_hash, barcode, saldo) VALUES (?, ?, ?, 0)',
-                 [request.form['name'], password_hash, request.form['code']])
+                 [name, password_hash, code])
 
-        if request.form['name'] == '' or request.form['password'] == '' \
-            or request.form['code'] == '':
+        if not all((name, password, code)):
             get_db().rollback()
             raise BadRequestKeyError
 
         get_db().commit()
-        app.logger.info('Account "%s (identifier: "%s") created',
-                        request.form['name'], request.form['code'])
+        app.logger.info('Account "%s (identifier: "%s") created', name, code)
     except BadRequestKeyError:
         exc_str = 'Incomplete request'
         app.logger.warning(exc_str)
@@ -160,66 +187,62 @@ def account_modify():
     400 with error message
     500 on broken code
     """
-    if 'superuserpassword' in request.form:
-        if request.form['superuserpassword'] != \
-            CONF.get('DEFAULT', 'superuser-password'):
-            app.logger.warning('Account modification with wrong super user password')
-            return 'Wrong superuserpassword', 400
-
-        account = query_db('SELECT id FROM accounts WHERE name=?', [request.form['name']], one=True)
-
-        if account is None:
-            exc_str = 'No such account in database'
-            app.logger.warning(exc_str)
-            return exc_str, 400
-
-    else:
-        try:
+    try:
+        if 'superuserpassword' in request.form:
+            superuser_password_check(request)
+        else:
             password_check(request)
-        except (KeyError, TypeError, ValueError) as exc:
-            return exc.args[0], 400
+    except (KeyError, TypeError, ValueError) as exc:
+        return exc.args[0], 400
+
+    name = request.form['name']
 
     try:
-        if 'new_code' in request.form:
-            if request.form['new_code'] == '':
-                get_db().rollback()
-                raise BadRequestKeyError
+        try:
+            new_code = request.form['new_code']
+            if not new_code:
+                raise ValueError
+            query_db('UPDATE accounts SET barcode=? WHERE name=?', [new_code, name])
+        except BadRequestKeyError:
+            # optional parameter
+            pass
 
-            query_db('UPDATE accounts SET barcode=? WHERE name=?',
-                     [request.form['new_code'], request.form['name']])
-
-        if 'new_password' in request.form:
-            if request.form['new_password'] == '':
-                get_db().rollback()
-                raise BadRequestKeyError
-
+        try:
+            new_password = request.form['new_password']
+            if not new_password:
+                raise ValueError
             new_password_hash = generate_password_hash(request.form['new_password'])
             query_db('UPDATE accounts SET password_hash=? WHERE name=?',
-                     [new_password_hash, request.form['name']])
+                     [new_password_hash, name])
+        except BadRequestKeyError:
+            # optional parameter
+            pass
 
-        if 'new_name' in request.form:
-            if request.form['new_name'] == '':
-                get_db().rollback()
-                raise BadRequestKeyError
-
+        try:
+            new_name = request.form['new_name']
+            if not new_name:
+                raise ValueError
             query_db('UPDATE accounts SET name=? WHERE name=?',
-                     [request.form['new_name'], request.form['name']])
+                     [new_name, name])
+        except BadRequestKeyError:
+            pass
 
         get_db().commit()
         app.logger.info('Account "%s modified (name=%d, code=%d, password=%d)',
-                        request.form['name'], 'new_name' in request.form,
-                        'new_code' in request.form, 'new_password' in request.form)
-    except BadRequestKeyError:
-        exc_str = 'Incomplete request'
-        app.logger.warning(exc_str)
-        return exc_str, 400
-    except sqlite3.IntegrityError as exc:
-        exc_str = sql_integrity_error(exc)
+                            request.form['name'], 'new_name' in request.form,
+                            'new_code' in request.form, 'new_password' in request.form)
+
+    except Exception as exc:
+        get_db().rollback()
+        if isinstance(exc, ValueError):
+            exc_str = 'Incomplete request'
+        elif isinstance(exc, sqlite3.IntegrityError):
+            exc_str = sql_integrity_error(exc)
+        elif isinstance(exc, sqlite3.OperationalError):
+            exc_str = exc.args[0]
+
         app.logger.error(exc_str)
         return exc_str, 400
-    except sqlite3.OperationalError as exc:
-        app.logger.error(exc)
-        return exc, 400
 
     return 'ok'
 
@@ -237,12 +260,12 @@ def account_view():
     500 on broken code
     """
     try:
-        password_check(request)
+        account_id, _ = password_check(request)
+
+        account = query_db('SELECT name, barcode, saldo FROM accounts WHERE id=?',
+                           [account_id], one=True)
     except (KeyError, TypeError, ValueError) as exc:
         return exc.args[0], 400
-
-    account = query_db('SELECT name, barcode, saldo FROM accounts WHERE name = ?',
-                       [request.form['name']], one=True)
 
     return json.dumps(tuple(account))
 
@@ -262,8 +285,9 @@ def account_exists():
     """
 
     try:
+        code = request.form['code']
         account_name = query_db('SELECT name FROM accounts WHERE barcode = ?',
-                                [request.form['code']], one=True)
+                                [code], one=True)
         if account_name is None:
             UNKNOWN_CODE.truncate(0)
             UNKNOWN_CODE.write(request.form['code'].encode('utf-8'))
@@ -297,7 +321,7 @@ def money_add():
     500 on broken code
     """
     try:
-        account_id = password_check(request)
+        account_id, name = password_check(request)
     except (KeyError, TypeError, ValueError) as exc:
         return exc.args[0], 400
 
@@ -305,7 +329,7 @@ def money_add():
         try:
             money = int(request.form['money'])
         except ValueError:
-            app.logger.info('Money for "%s" not given in cents', request.form['name'])
+            app.logger.info('Money for "%s" not given in cents', name)
             return 'Money must be specified in cents', 400
 
         account_saldo = query_db('SELECT saldo FROM accounts WHERE id = ?',
@@ -321,7 +345,8 @@ def money_add():
         query_db('INSERT INTO money_logs (account_id, amount, timestamp) VALUES (?, ?, strftime("%s", "now"))',  # pylint: disable=line-too-long
                  [account_id, money])
         get_db().commit()
-        app.logger.info('Added %d cents to account "%s"', money, request.form['name'])
+        app.logger.info('Added %d cents to account "%s"', money, name)
+
     except Exception as exc:  # pylint: disable=broad-except
         get_db().rollback()
         if isinstance(exc, (BadRequestKeyError, KeyError)):
@@ -351,7 +376,7 @@ def money_view():
     500 on broken code
     """
     try:
-        account_id = password_check(request)
+        account_id, _ = password_check(request)
     except (KeyError, TypeError, ValueError) as exc:
         return exc.args[0], 400
 
@@ -386,14 +411,17 @@ def payment_perform():
     400 with error message
     500 on broken code
     """
-    if request.form['superuserpassword'] != \
-        CONF.get('DEFAULT', 'superuser-password'):
-        app.logger.warning('Payment with wrong super user password')
-        return 'Wrong superuserpassword', 400
+    try:
+        superuser_password_check(app, request)
+    except (KeyError, TypeError, ValueError) as exc:
+        return exc.args[0], 400
 
     try:
+        account_code = request.form['account_code']
+        drink_barcode = request.form['drink_barcode']
+
         account = query_db('SELECT id, saldo FROM accounts WHERE barcode=?',
-                           [request.form['account_code']], one=True)
+                           [account_code], one=True)
         try:
             account_id, saldo = tuple(account)
         except TypeError:
@@ -406,8 +434,7 @@ def payment_perform():
             app.logger.warning(exc_str)
             return exc_str, 400
 
-        drink = query_db('SELECT id, price FROM drinks WHERE barcode=?',
-                         [request.form['drink_barcode']], one=True)
+        drink = query_db('SELECT id, price FROM drinks WHERE barcode=?', [drink_barcode], one=True)
         try:
             drink_id, drink_price = tuple(drink)
         except TypeError:
