@@ -77,7 +77,7 @@ class ScannerClient:
         data = {
             'superuserpassword': self.conf.get('DEFAULT', 'superuser-password'),
             'account_code': self.account_code,
-            'money': amount,
+            'money': amount*100,
         }
         req = requests.post('{}/api/money/add'.format(self.api_url), data=data)
 
