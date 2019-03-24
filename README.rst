@@ -139,7 +139,8 @@ the venv and configs:
 
 .. code-block:: bash
 
-    $ adduser prepaid-mate input
+    $ adduser prepaid-mate input # allow access to HID devices
+    $ adduser prepaid-mate audio # allow access to audio devices
     $ su someuser
     $ mkdir -p /your/desired/location/
     $ cd /your/desired/location/
