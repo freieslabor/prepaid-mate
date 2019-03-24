@@ -20,8 +20,8 @@ function showLogin() {
 	$('#start').show();
 	$('#InputUsername').focus();
 
-	// login on enter keypress
-	$(document).keypress(function(event) {
+	// login on enter keypress in form fields
+	$('.loginfield').keypress(function(event) {
 		if (event.which == 13) {
 			login();
 		}
@@ -55,9 +55,10 @@ function showNewAccount() {
 	$('#newAccount').show();
 	$('#createNewAccountButton').show();
 	$('#modifyAccountButton').hide();
+	$('#createModifyUsername').focus();
 
-	// create on enter keypress
-	$(document).keypress(function(event) {
+	// create account on enter keypress in create/modify form
+	$('.createmodifyfield').keypress(function(event) {
 		if (event.which == 13) {
 			newAccount();
 		}
