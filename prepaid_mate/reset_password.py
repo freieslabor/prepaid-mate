@@ -4,6 +4,7 @@
 import os
 import sys
 import getpass
+import hashlib
 from configparser import ConfigParser
 
 import requests
@@ -18,7 +19,7 @@ def password_reset(config_file, account_name, new_password):
         data = {
             'superuserpassword': superuser_pw,
             'name': account_name,
-            'new_password': new_password,
+            'new_password': hashlib.md5(new_password.encode('utf-8')).hexdigest(),
         }
         try:
             req = requests.post('{}/api/account/modify'.format(api_url), data=data)

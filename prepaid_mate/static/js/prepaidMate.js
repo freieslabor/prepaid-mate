@@ -30,7 +30,7 @@ function showLogin() {
 
 function login() {
 	credentials.name = $('#InputUsername').val();
-	credentials.password = $('#InputPassword').val();
+	credentials.password = md5($('#InputPassword').val());
 
 	$.post( //pass login credentials to api
 		'/api/account/view', credentials,
@@ -85,7 +85,7 @@ function newAccount(){
 
 	createCredentials.name = $('#createModifyUsername').val();
 	createCredentials.code = $('#createModifyRFID').val();
-	createCredentials.password = $('#createModifyPassword').val();
+	createCredentials.password = md5($('#createModifyPassword').val());
 
 	$.post( //pass login credentials to api
 		'/api/account/create', createCredentials,
@@ -125,7 +125,7 @@ function modifyUser() {
 	//write credentials back to api
 	credentials.name = $('#modifyUsername').val();
 	credentials.rfid = $('#modifyRFID').val();
-	credentials.password = $('#modifyPassword').val();
+	credentials.password = md5($('#modifyPassword').val());
 }
 
 function addBalance() {
