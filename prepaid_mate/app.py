@@ -316,12 +316,20 @@ def money_add():
     - password
     - money
 
+    Alternative POST parameters:
+    - superuserpassword
+    - account_code
+    - money
+
     Returns 200 "ok"
     400 with error message
     500 on broken code
     """
     try:
-        account_id, name = password_check(request)
+        if 'superuserpassword' in request.form:
+            account_id, name = superuser_password_check(request)
+        else:
+            account_id, name = password_check(request)
     except (KeyError, TypeError, ValueError) as exc:
         return exc.args[0], 400
 
