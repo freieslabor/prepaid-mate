@@ -111,7 +111,7 @@ function dashboard(accountData) {
 	getCurrentBalance(accountData);
 }
 
-function showModifyUser() {
+function showModifyAccount() {
 	cleanUp();
 	$('#modifyAccount').show();
 	$('#createNewAccountButton').hide();
@@ -121,7 +121,7 @@ function showModifyUser() {
 	$('#modifyRFID').val(credentials.rfid);
 }
 
-function modifyUser() {
+function modifyAccount() {
 	//write credentials back to api
 	credentials.name = $('#modifyUsername').val();
 	credentials.rfid = $('#modifyRFID').val();
