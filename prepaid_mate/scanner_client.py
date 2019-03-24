@@ -154,7 +154,12 @@ class ScannerClient:
                         code += key
                     elif key == 'ENTER':
                         try:
-                            self.process_code(code)
+                            if dev == rfid_dev:
+                                # hacky state machine shortcut
+                                self.process_code_account(code)
+                                self.mode = Mode.ORDER
+                            else:
+                                self.process_code(code)
                         except (UserError, BackendError,
                                 requests.exceptions.ConnectionError) as exc:
                             self.log_and_speak(exc.args[0], level=logging.ERROR)
