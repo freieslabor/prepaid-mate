@@ -1,61 +1,31 @@
-$('#start').show();
-$('#InputUsername').focus();
-
-// login on enter keypress
-$(document).keypress(function(event) {
-	if (event.which == 13) {
-		login();
-    }
-});
-
-function newAccount() {
-	$('.view').hide();
-	$('#newAccount').show();
-	$('#createNewAccountButton').show();
-	$('#modifyAccountButton').hide();
-
-	setInterval(function() {
-		if ($('#createModifyRFID').val() == "") {
-			$.get("/api/last_unknown_code", function(data) {
-				if (data != "" && $('#createModifyRFID').val() == "") {
-					$('#createModifyRFID').val(data);
-				}
-			});
-		}
-	}, 1000);
-}
-
-function createNewAccount(){
-	var createCredentials = {
-		name: null,
-		code: null,
-		password: null
-	}
-
-	createCredentials.name = $('#createModifyUsername').val();
-	createCredentials.code = $('#createModifyRFID').val();
-	createCredentials.password = $('#createModifyPassword').val();
-
-	$.post( //pass login credentials to api
-		"/api/account/create", createCredentials,
-	).done( //on successful login call dashboard()
-		function( accountData ) {
-			$('.view').hide();
-			$('#start').show();
-			$('#InputUsername').focus();
-		}
-	).fail( //on failed login attempt alert user and clear login inputs
-		function( errorMessage ) {
-			alert(errorMessage.responseText);
-			$('#createPassword').val("");
-		}
-	);
-}
-
+rfid_autofill = null;
 credentials = {
 	name: null,
 	rfid: null,
 	password: null,
+}
+
+function cleanUp() {
+	// clear keypress handler
+	$(document).off("keypress");
+
+	// clear RFID autofill timer
+	clearInterval(rfid_autofill);
+
+	// hide current content of the page
+	$('.view').hide();
+}
+
+function showLogin() {
+	$('#start').show();
+	$('#InputUsername').focus();
+
+	// login on enter keypress
+	$(document).keypress(function(event) {
+		if (event.which == 13) {
+			login();
+		}
+	});
 }
 
 function login() {
@@ -80,8 +50,59 @@ function login() {
 	);
 }
 
+function showNewAccount() {
+	cleanUp();
+	$('#newAccount').show();
+	$('#createNewAccountButton').show();
+	$('#modifyAccountButton').hide();
+
+	// create on enter keypress
+	$(document).keypress(function(event) {
+		if (event.which == 13) {
+			newAccount();
+		}
+	});
+
+	// auto fill RFID code (last unknown code inserted)
+	rfid_autofill = setInterval(function() {
+		if ($('#createModifyRFID').val() == "") {
+			$.get("/api/last_unknown_code", function(data) {
+				if (data != "" && $('#createModifyRFID').val() == "") {
+					$('#createModifyRFID').val(data);
+				}
+			});
+		}
+	}, 1000);
+}
+
+function newAccount(){
+	var createCredentials = {
+		name: null,
+		code: null,
+		password: null
+	}
+
+	createCredentials.name = $('#createModifyUsername').val();
+	createCredentials.code = $('#createModifyRFID').val();
+	createCredentials.password = $('#createModifyPassword').val();
+
+	$.post( //pass login credentials to api
+		"/api/account/create", createCredentials,
+	).done( //on successful login call dashboard()
+		function( accountData ) {
+			cleanUp();
+			showLogin();
+		}
+	).fail( //on failed login attempt alert user and clear login inputs
+		function( errorMessage ) {
+			alert(errorMessage.responseText);
+			$('#createPassword').val("");
+		}
+	);
+}
+
 function dashboard(accountData) {
-	$('.view').hide();
+	cleanUp();
 	$('#dashboard').show();
 	var userName = jQuery.parseJSON(accountData)[0];
 	$('#userName').html(userName)
@@ -90,15 +111,13 @@ function dashboard(accountData) {
 }
 
 function showModifyUser() {
-	$('.view').hide();
+	cleanUp();
 	$('#modifyAccount').show();
 	$('#createNewAccountButton').hide();
   $('#modifyAccountButton').show();
 
 	$('#modifyUsername').val(credentials.name);
 	$('#modifyRFID').val(credentials.rfid);
-
-
 }
 
 function modifyUser() {
@@ -193,3 +212,6 @@ function getPaymentData() {
 		}
 	);
 }
+
+// start here
+showLogin();
