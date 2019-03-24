@@ -159,7 +159,6 @@ class ScannerClient:
                                 requests.exceptions.ConnectionError) as exc:
                             self.log_and_speak(exc.args[0], level=logging.ERROR)
                             self.reset()
-                            continue
                         except DuplicateCodeError:
                             # ignore duplicate codes
                             self.logger.info('ignoring duplicate code %s', code)
