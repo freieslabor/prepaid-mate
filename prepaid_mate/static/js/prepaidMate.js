@@ -123,6 +123,8 @@ function showModifyAccount() {
 
 	$('#modifyUsername').val(credentials.name);
 	$('#modifyRFID').val(credentials.rfid);
+
+	autoFillRFID();
 }
 
 function modifyAccount() {
