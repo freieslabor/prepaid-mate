@@ -37,7 +37,7 @@ Software Components
   - adding/view money (transactions)
   - performing payments
 * scanner client listening to barcode/RFID events and triggering payments
-* simple, static web frontend (currently in development)
+* simple, static web frontend (currently in development, at the moment German only)
 
 Installation and configuration
 ==============================
