@@ -5,41 +5,18 @@ import logging
 import os
 import sqlite3
 import json
-from configparser import ConfigParser
 import tempfile
 import time
 
 from flask import Flask, g, request
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import generate_password_hash
 from werkzeug.exceptions import BadRequestKeyError
 
+from .app_helper import (sql_integrity_error, get_db, query_db, password_check,
+                         superuser_password_check)
+
 app = Flask(__name__)  # pylint: disable=invalid-name
-CONF = ConfigParser()
-CONF_FILE = os.environ.get('CONFIG', './config')
-CONF.read_file(open(CONF_FILE))
 UNKNOWN_CODE = tempfile.NamedTemporaryFile()
-
-def sql_integrity_error(exc):
-    """Extract useful info from """
-    assert isinstance(exc, sqlite3.IntegrityError)
-
-    unique_error_prefix = 'UNIQUE constraint failed: '
-    if exc.args[0].startswith(unique_error_prefix):
-        field = exc.args[0].replace(unique_error_prefix, '')
-        _, field = field.split('.', 1)
-        return '{} already exists'.format(field), 400
-    return 'Database integrity error', 400
-
-def get_db():
-    """
-    Helper to retrieve DB connection, taken from
-    http://flask.pocoo.org/docs/1.0/patterns/sqlite3/
-    """
-    database = getattr(g, '_database', None)
-    if database is None:
-        database = g._database = sqlite3.connect(CONF.get('DEFAULT', 'database'))
-    database.row_factory = sqlite3.Row
-    return database
 
 @app.teardown_appcontext
 def close_connection(_):
@@ -50,71 +27,6 @@ def close_connection(_):
     database = getattr(g, '_database', None)
     if database is not None:
         database.close()
-
-def query_db(query, args=(), one=False):
-    """
-    Helper to query DB
-    http://flask.pocoo.org/docs/1.0/patterns/sqlite3/
-    """
-    cur = get_db().execute(query, args)
-    result = cur.fetchall()
-    cur.close()
-    return (result[0] if result else None) if one else result
-
-def password_check(req):
-    """
-    Helper to check username and password, taken from "name" and "password"
-    POST parameters. Returns (id, name) tuple.
-    """
-    try:
-        name = req.form['name']
-        account = query_db('SELECT id, password_hash FROM accounts WHERE name = ?',
-                           [name], one=True)
-        if 'password' not in req.form:
-            app.logger.info('password check failed: no password given')
-            raise KeyError()
-    except KeyError:
-        app.logger.info('password check failed: no username given')
-        raise KeyError('Incomplete request')
-
-    try:
-        account_id, password_hash = tuple(account)
-    except TypeError:
-        app.logger.info('password check failed: no such account "%s" in database', name)
-        raise TypeError('No such account in database')
-
-    if not check_password_hash(password_hash, req.form['password']):
-        app.logger.info('password check failed: wrong password for account "%s"', name)
-        raise ValueError('Wrong password')
-
-    return (account_id, name)
-
-def superuser_password_check(req):
-    """
-    Helper to check superuser password and account name/code, taken from
-    superuserpassword", "name"/"account_code" POST parameters. Sets POST
-    parameter "name" for easier post-processing. Returns (id, name) tuple.
-    """
-    if req.form['superuserpassword'] != \
-        CONF.get('DEFAULT', 'superuser-password'):
-        app.logger.warning('Account modification with wrong super user password')
-        raise ValueError('Wrong superuserpassword')
-
-    try:
-        if 'name' in req.form:
-            account = query_db('SELECT id, name FROM accounts WHERE name=?', [req.form['name']], one=True)
-        elif 'account_code' in req.form:
-            account = query_db('SELECT id, name FROM accounts WHERE barcode=?', [req.form['account_code']], one=True)
-    except BadRequestKeyError:
-        app.logger.info('superuser password check failed: no name or account_code given')
-        raise KeyError('Incomplete request')
-
-    if account is None:
-        exc_str = 'No such account in database'
-        app.logger.warning(exc_str)
-        raise(exc_str)
-
-    return tuple(account)
 
 @app.route('/api/account/create', methods=['POST'])
 def account_create():
@@ -189,9 +101,9 @@ def account_modify():
     """
     try:
         if 'superuserpassword' in request.form:
-            superuser_password_check(request)
+            superuser_password_check(app, request)
         else:
-            password_check(request)
+            password_check(app, request)
     except (KeyError, TypeError, ValueError) as exc:
         return exc.args[0], 400
 
@@ -260,7 +172,7 @@ def account_view():
     500 on broken code
     """
     try:
-        account_id, _ = password_check(request)
+        account_id, _ = password_check(app, request)
 
         account = query_db('SELECT name, barcode, saldo FROM accounts WHERE id=?',
                            [account_id], one=True)
@@ -327,9 +239,9 @@ def money_add():
     """
     try:
         if 'superuserpassword' in request.form:
-            account_id, name = superuser_password_check(request)
+            account_id, name = superuser_password_check(app, request)
         else:
-            account_id, name = password_check(request)
+            account_id, name = password_check(app, request)
     except (KeyError, TypeError, ValueError) as exc:
         return exc.args[0], 400
 
@@ -384,7 +296,7 @@ def money_view():
     500 on broken code
     """
     try:
-        account_id, _ = password_check(request)
+        account_id, _ = password_check(app, request)
     except (KeyError, TypeError, ValueError) as exc:
         return exc.args[0], 400
 
