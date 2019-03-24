@@ -265,6 +265,7 @@ def account_exists():
         account_name = query_db('SELECT name FROM accounts WHERE barcode = ?',
                                 [request.form['code']], one=True)
         if account_name is None:
+            UNKNOWN_CODE.truncate(0)
             UNKNOWN_CODE.write(request.form['code'].encode('utf-8'))
             UNKNOWN_CODE.seek(0)
         else:
