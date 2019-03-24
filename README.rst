@@ -20,6 +20,7 @@ Table of contents
 * `Run it <#run-it>`_
 * `Test it <#test-it>`_
 * `Deploy it <#deploy-it>`_
+* `Update it <#update-it>`_
 
 Required Hardware
 =================
@@ -174,9 +175,41 @@ Now enable the nginx site, enable the gunicorn service and (re)start the service
     $ ln -s /etc/nginx/sites-available/prepaid_mate /etc/nginx/sites-enabled/prepaid_mate
     $ systemctl enable gunicorn.service
     $ systemctl enable scanner-client.service
-    $ systemctl restart nginx.service gunicorn.service
+    $ systemctl restart nginx.service gunicorn.service scanner-client.service
 
-Prepaid Mate should now respond at ``http://localhost/``.
+Prepaid Mate should now respond at ``http://localhost/`` and you can start
+scanning.
+
+Update it
+=========
+
+Switch to the user that runs Prepaid Mate and change into the directory created above:
+
+.. code-block:: bash
+
+    $ su someuser
+    $ cd /your/installed/location/
+
+Activate the virtualenv created above:
+
+.. code-block:: bash
+
+    $ source prod-venv/bin/activate
+
+Now update Prepaid Mate:
+
+.. code-block:: bash
+
+    (prod-venv) $ pip install -e git+https://github.com/freieslabor/prepaid-mate.git#egg=prepaid-mate
+
+Now restart the services:
+
+.. code-block:: bash
+
+    $ systemctl restart scanner-client.service gunicorn.service
+
+Prepaid Mate should now respond at ``http://localhost/`` and you can start
+scanning.
 
 .. |python3.5| image:: https://img.shields.io/badge/python-3.5-blue.svg
     :alt: Supports python3.5
