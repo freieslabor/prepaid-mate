@@ -3,6 +3,7 @@
 
 import os
 import sys
+import getpass
 from configparser import ConfigParser
 
 import requests
@@ -43,7 +44,7 @@ def main():
         print('Usage: {} USER'.format(sys.argv[0]))
         exit(1)
 
-    password = input('New password: ')
+    password = getpass.getpass('New password: ')
     exit(password_reset(conf_file, sys.argv[1], password))
 
 if __name__ == '__main__':
