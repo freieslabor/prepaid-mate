@@ -40,10 +40,13 @@ class ScannerClient:
         self.mode = Mode.ACCOUNT
         self.account_code = None
         self.order_time = None
+        self.add_balance_codes = {}
 
         loglevel = logging.DEBUG if self.debug else logging.INFO
         logging.basicConfig(level=loglevel)
         self.logger = logging.getLogger()
+
+        self.parse_add_balance_codes()
 
     def log_and_speak(self, msg, level=logging.INFO):
         """Logs the given message and uses espeak to inform the user"""
@@ -52,6 +55,44 @@ class ScannerClient:
             espeak_call = self.conf.get(ScannerClient.CONF_SECTION, 'espeak-call')
             subprocess.call(espeak_call.format(msg=msg), shell=True)
 
+    def parse_add_balance_codes(self):
+        """
+        Parses config "<amount>-eur-code" codes and stores them in self.add_balance_codes dict.
+        """
+        for amount in range(1000):
+            try:
+                option = '{}-eur-code'.format(amount)
+                code = self.conf.get(ScannerClient.CONF_SECTION, option)
+            except configparser.NoOptionError:
+                continue
+
+            if code in self.add_balance_codes:
+                raise UserError('Forbidden duplicate in add balance codes, check your config')
+
+            self.add_balance_codes[code] = amount
+
+    def add_balance(self, amount):
+        """Adds given amount to the user's balance."""
+
+        data = {
+            'superuserpassword': self.conf.get('DEFAULT', 'superuser-password'),
+            'account_code': self.account_code,
+            'money': amount,
+        }
+        req = requests.post('{}/api/money/add'.format(self.api_url), data=data)
+
+        if req.status_code == 200:
+            self.logger.info('add balance callback successful: %s', req.content.decode('utf-8'))
+            saldo = int(req.content.decode('utf-8'))/100.0
+            self.log_and_speak('Added {} Euro, your balance is {} Euro'.format(amount, saldo))
+        elif req.status_code == 400:
+            self.logger.error('add balance callback failed: %s (%d)', req.content.decode('utf-8'),
+                              req.status_code)
+            raise UserError('Adding money failed: {}'.format(req.content.decode('utf-8')))
+        else:
+            raise BackendError('backend error during adding money')
+
+
     def process_code(self, barcode, timeout=15):
         """
         Processes user barcode/RFID code and drink barcode, depending on the
@@ -59,6 +100,14 @@ class ScannerClient:
         In case timeout is exceeded between user code and drink code user code
         recognition mode is entered.
         """
+        if barcode in self.add_balance_codes:
+            if self.mode is Mode.ACCOUNT:
+                raise UserError('Please identify first.')
+
+            self.add_balance(self.add_balance_codes[barcode])
+            reset()
+            return
+
         if self.order_time and time.time() > self.order_time + timeout:
             self.logger.info('order timeout, back in account scan mode')
             self.reset()
@@ -102,12 +151,12 @@ class ScannerClient:
         req = requests.post('{}/api/payment/perform'.format(self.api_url), data=data)
 
         if req.status_code == 200:
-            self.logger.info('callback successful: %s', req.content.decode('utf-8'))
+            self.logger.info('order callback successful: %s', req.content.decode('utf-8'))
             saldo = int(req.content.decode('utf-8'))/100.0
             self.log_and_speak('Payment successful: your balance is {} Euro' \
                                .format(saldo))
         elif req.status_code == 400:
-            self.logger.error('callback failed: %s (%d)', req.content.decode('utf-8'),
+            self.logger.error('order callback failed: %s (%d)', req.content.decode('utf-8'),
                               req.status_code)
             raise UserError('Payment failed: {}'.format(req.content.decode('utf-8')))
         else:
