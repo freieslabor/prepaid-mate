@@ -16,6 +16,19 @@ function cleanUp() {
 	$('.view').hide();
 }
 
+function autoFillRFID() {
+	// auto fill RFID code (last unknown code inserted)
+	rfid_autofill = setInterval(function() {
+		if ($('#createModifyRFID').val() == '') {
+			$.get('/api/last_unknown_code', function(data) {
+				if (data != '' && $('#createModifyRFID').val() == '') {
+					$('#createModifyRFID').val(data);
+				}
+			});
+		}
+	}, 1000);
+}
+
 function showLogin() {
 	$('#start').show();
 	$('#InputUsername').focus();
@@ -64,16 +77,7 @@ function showNewAccount() {
 		}
 	});
 
-	// auto fill RFID code (last unknown code inserted)
-	rfid_autofill = setInterval(function() {
-		if ($('#createModifyRFID').val() == '') {
-			$.get('/api/last_unknown_code', function(data) {
-				if (data != '' && $('#createModifyRFID').val() == '') {
-					$('#createModifyRFID').val(data);
-				}
-			});
-		}
-	}, 1000);
+	autoFillRFID();
 }
 
 function newAccount(){
