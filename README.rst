@@ -225,6 +225,12 @@ scanning.
 FAQ
 ===
 
+I accidentally added a wrong amount of money to my account. How can I fix it?
+-----------------------------------------------------------------------------
+
+Prepaid Mate works like a bank. Perform another transaction to cancel it out.
+You can add negative amounts of money (while your balance cannot).
+
 I forgot my password. How can I reset it?
 -----------------------------------------
 
