@@ -14,6 +14,7 @@ drink. Cheers!
 Table of contents
 =================
 
+* `Design Principles <#design-principles>`_
 * `Required Hardware <#required-hardware>`_
 * `Software Components <#software-components>`_
 * `Installation and Configuration <#installation-and-configuration>`_
@@ -21,6 +22,15 @@ Table of contents
 * `Test it <#test-it>`_
 * `Deploy it <#deploy-it>`_
 * `Update it <#update-it>`_
+
+Design Principles
+=================
+
+* either the environment Prepaid Mate is running in is private or you need
+  transport layer encryption (e.g. SSL)
+* passwords are hashed, but not encrypted during transport
+* no sessions, if you press refresh/back/forward in your browser, you won't
+  be logged in anymore
 
 Required Hardware
 =================
