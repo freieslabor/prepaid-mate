@@ -32,9 +32,9 @@ function createNewAccount(){
 		password: null
 	}
 
-	createCredentials.name = $('#createUsername').val();
-	createCredentials.code = $('#createRFID').val();
-	createCredentials.password = $('#createPassword').val();
+	createCredentials.name = $('#createModifyUsername').val();
+	createCredentials.code = $('#createModifyRFID').val();
+	createCredentials.password = $('#createModifyPassword').val();
 
 	$.post( //pass login credentials to api
 		"/api/account/create", createCredentials,
