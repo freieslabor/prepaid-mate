@@ -52,12 +52,12 @@ def test_money_add_incomplete(flask_server, create_account):
         del data_tmp[remove_input]
 
         req = requests.post('{}/money/add'.format(API_URL), data=data_tmp)
-        assert req.status_code == 400
         assert req.content != b'ok'
+        assert req.status_code == 400
 
         req = requests.post('{}/money/view'.format(API_URL), data=data)
-        assert req.status_code == 200
         assert json.loads(req.content.decode('utf-8')) == []
+        assert req.status_code == 200
 
 def test_money_add_empty(flask_server, create_account):
     """Test if adding money with empty parameters fails as expected."""
@@ -75,12 +75,12 @@ def test_money_add_empty(flask_server, create_account):
         data_tmp[empty_input] = ''
 
         req = requests.post('{}/money/add'.format(API_URL), data=data_tmp)
-        assert req.status_code == 400
         assert req.content != b'ok'
+        assert req.status_code == 400
 
         req = requests.post('{}/money/view'.format(API_URL), data=data)
-        assert req.status_code == 200
         assert json.loads(req.content.decode('utf-8')) == []
+        assert req.status_code == 200
 
 def test_money_add_negative(flask_server, create_account):
     """Test if adding negative amounts of money fails as expected."""
@@ -91,12 +91,12 @@ def test_money_add_negative(flask_server, create_account):
     data['money'] = -1000
 
     req = requests.post('{}/money/add'.format(API_URL), data=data)
-    assert req.status_code == 400
     assert req.content == b'Negative amount would lead to negative balance'
+    assert req.status_code == 400
 
     req = requests.post('{}/money/view'.format(API_URL), data=data)
-    assert req.status_code == 200
     assert json.loads(req.content.decode('utf-8')) == []
+    assert req.status_code == 200
 
 def test_money_add_nonumber(flask_server, create_account):
     """
@@ -111,12 +111,12 @@ def test_money_add_nonumber(flask_server, create_account):
         data['money'] = money_input
 
         req = requests.post('{}/money/add'.format(API_URL), data=data)
-        assert req.status_code == 400
         assert req.content == b'Money must be specified in cents'
+        assert req.status_code == 400
 
         req = requests.post('{}/money/view'.format(API_URL), data=data)
-        assert req.status_code == 200
         assert json.loads(req.content.decode('utf-8')) == []
+        assert req.status_code == 200
 
 def test_money_view_incomplete(flask_server, create_account):
     """Test if money view with incomplete parameters fails as expected."""
@@ -132,8 +132,8 @@ def test_money_view_incomplete(flask_server, create_account):
         del data_tmp[remove_input]
 
         req = requests.post('{}/money/view'.format(API_URL), data=data_tmp)
-        assert req.status_code == 400
         assert req.content == b'Incomplete request'
+        assert req.status_code == 400
 
 def test_money_view_empty(flask_server, create_account):
     """Test if money view with empty parameters fails as expected."""
@@ -149,5 +149,5 @@ def test_money_view_empty(flask_server, create_account):
         data_tmp[empty_input] = ''
 
         req = requests.post('{}/money/view'.format(API_URL), data=data_tmp)
-        assert req.status_code == 400
         assert req.content in (b'No such account in database', b'Wrong password')
+        assert req.status_code == 400

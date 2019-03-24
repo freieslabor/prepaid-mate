@@ -11,8 +11,8 @@ def test_account_creation_good(flask_server):
 
     req = requests.post('{}/account/create'.format(API_URL),
                         data={'name': 'foo', 'password': 'bar', 'code': '123'})
-    assert req.status_code == 200
     assert req.content == b'ok'
+    assert req.status_code == 200
 
 def test_account_creation_incomplete(flask_server):
     """Test if incomplete account creation fails as expected."""
@@ -31,8 +31,8 @@ def test_account_creation_incomplete(flask_server):
 
     for data in datas:
         req = requests.post('{}/account/create'.format(API_URL), data=data)
-        assert req.status_code == 400
-        assert req.content == b'Incomplete request'
+        assert req.content == b'Incomplete request', 'input={}'.format(data)
+        assert req.status_code == 400, 'input={}'.format(data)
 
 def test_account_creation_empty(flask_server):
     """Test if account creation with empty string for parameter fails as expected."""
@@ -46,8 +46,8 @@ def test_account_creation_empty(flask_server):
 
     for data in datas:
         req = requests.post('{}/account/create'.format(API_URL), data=data)
-        assert req.status_code == 400
-        assert req.content == b'Incomplete request'
+        assert req.content == b'Incomplete request', 'input={}'.format(data)
+        assert req.status_code == 400, 'input={}'.format(data)
 
 def test_account_modification_good(flask_server, create_account):
     """Test if account modification works."""
@@ -59,8 +59,8 @@ def test_account_modification_good(flask_server, create_account):
     data['new_code'] = '456'
 
     req = requests.post('{}/account/modify'.format(API_URL), data=data)
-    assert req.status_code == 200
     assert req.content == b'ok'
+    assert req.status_code == 200
 
 def test_account_modification_superuser_good(flask_server, create_account):
     """Test if account modification works."""
@@ -76,8 +76,8 @@ def test_account_modification_superuser_good(flask_server, create_account):
     }
 
     req = requests.post('{}/account/modify'.format(API_URL), data=data)
-    assert req.status_code == 200
     assert req.content == b'ok'
+    assert req.status_code == 200
 
 def test_account_modification_superuser_wrong_pw(flask_server, create_account):
     """Test if account modification works."""
@@ -93,8 +93,8 @@ def test_account_modification_superuser_wrong_pw(flask_server, create_account):
     }
 
     req = requests.post('{}/account/modify'.format(API_URL), data=data)
-    assert req.status_code == 400
     assert req.content == b'Wrong superuserpassword'
+    assert req.status_code == 400
 
 def test_account_modification_inexistent(flask_server):
     """Test account modification of inexistent account."""
@@ -109,8 +109,8 @@ def test_account_modification_inexistent(flask_server):
     }
 
     req = requests.post('{}/account/modify'.format(API_URL), data=data)
-    assert req.status_code == 400
     assert req.content == b'No such account in database'
+    assert req.status_code == 400
 
 def test_account_modification_empty(flask_server, create_account):
     """Test account modification with empty string for parameter fails as expected."""
@@ -128,8 +128,8 @@ def test_account_modification_empty(flask_server, create_account):
         data_tmp = {**data_tmp, **input_}
 
         req = requests.post('{}/account/modify'.format(API_URL), data=data_tmp)
-        assert req.status_code == 400
-        assert req.content == b'Incomplete request'
+        assert req.content == b'Incomplete request', 'input={}'.format(data_tmp)
+        assert req.status_code == 400, 'input={}'.format(data_tmp)
 
 def test_account_view_good(flask_server, create_account):
     """Test if account view works."""
@@ -150,8 +150,8 @@ def test_account_view_wrong_pw(flask_server, create_account):
     data['password'] += '123'
 
     req = requests.post('{}/account/view'.format(API_URL), data=data)
-    assert req.status_code == 400
     assert req.content == b'Wrong password'
+    assert req.status_code == 400
 
 def test_account_view_inexistent_account(flask_server, create_account):
     """Test if account view for inexistent account fails as expected."""
@@ -161,8 +161,8 @@ def test_account_view_inexistent_account(flask_server, create_account):
     data['name'] += '123'
 
     req = requests.post('{}/account/view'.format(API_URL), data=data)
-    assert req.status_code == 400
     assert req.content == b'No such account in database'
+    assert req.status_code == 400
 
 def test_account_code_exists(flask_server, create_account):
     """Test if account code verification method works with existing account."""
