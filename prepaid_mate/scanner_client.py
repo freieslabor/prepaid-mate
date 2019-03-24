@@ -26,7 +26,7 @@ class Mode(Enum):
 
 class ScannerClient:
     """
-    Performs payment of a drink in behave of a user.
+    Performs payment of a drink in behalf of a user.
     A user is identified by barcode or RFID code.
     A drink is always identified by barcode.
     """
