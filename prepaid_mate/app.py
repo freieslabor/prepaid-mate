@@ -100,10 +100,7 @@ def account_modify():
     500 on broken code
     """
     try:
-        if 'superuserpassword' in request.form:
-            superuser_password_check(app, request)
-        else:
-            password_check(app, request)
+        password_check(app, request)
     except (KeyError, TypeError, ValueError) as exc:
         return exc.args[0], 400
 
@@ -238,10 +235,7 @@ def money_add():
     500 on broken code
     """
     try:
-        if 'superuserpassword' in request.form:
-            account_id, name = superuser_password_check(app, request)
-        else:
-            account_id, name = password_check(app, request)
+        account_id, name = password_check(app, request)
     except (KeyError, TypeError, ValueError) as exc:
         return exc.args[0], 400
 
