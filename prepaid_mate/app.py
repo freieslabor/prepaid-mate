@@ -199,7 +199,7 @@ def account_exists():
                                 [code], one=True)
         if account_name is None:
             UNKNOWN_CODE.truncate(0)
-            UNKNOWN_CODE.write(request.form['code'].encode('utf-8'))
+            UNKNOWN_CODE.write(code.encode('utf-8'))
             UNKNOWN_CODE.seek(0)
         else:
             account_name = tuple(account_name)[0]
