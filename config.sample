@@ -8,3 +8,4 @@ reset-barcode = 123456789
 barcode-device = /dev/input/by-path/pci-0000:00:14.0-usb-0:2:1.0-event-kbd
 rfid-device = /dev/input/by-path/pci-0000:00:1a.0-usb-0:1.2:1.0-event-kbd
 debug = 1
+espeak-call = /usr/bin/espeak "{msg}"

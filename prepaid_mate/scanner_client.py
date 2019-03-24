@@ -48,7 +48,8 @@ class ScannerClient:
         """Logs the given message and uses espeak to inform the user"""
         self.logger.log(level, msg)
         if not self.debug:
-            os.system('/usr/bin/espeak "{msg}"'.format(msg=msg))
+            espeak_call = self.conf.get(ScannerClient.CONF_SECTION, 'espeak-call')
+            subprocess.call(espeak_call.format(msg=msg), shell=True)
 
     def process_code(self, barcode, timeout=15):
         """
