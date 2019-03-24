@@ -7,7 +7,7 @@ credentials = {
 
 function cleanUp() {
 	// clear keypress handler
-	$(document).off("keypress");
+	$(document).off('keypress');
 
 	// clear RFID autofill timer
 	clearInterval(rfid_autofill);
@@ -33,7 +33,7 @@ function login() {
 	credentials.password = $('#InputPassword').val();
 
 	$.post( //pass login credentials to api
-		"/api/account/view", credentials,
+		'/api/account/view', credentials,
 	).done( //on successful login call dashboard()
 		function( accountData ) {
 			var rfid = jQuery.parseJSON(accountData)[1];
@@ -44,8 +44,8 @@ function login() {
 		function( errorMessage ) {
 			alert(errorMessage.responseText);
 			$('#start').show();
-			$('#InputUsername').val("");
-			$('#InputPassword').val("");
+			$('#InputUsername').val('');
+			$('#InputPassword').val('');
 		}
 	);
 }
@@ -65,9 +65,9 @@ function showNewAccount() {
 
 	// auto fill RFID code (last unknown code inserted)
 	rfid_autofill = setInterval(function() {
-		if ($('#createModifyRFID').val() == "") {
-			$.get("/api/last_unknown_code", function(data) {
-				if (data != "" && $('#createModifyRFID').val() == "") {
+		if ($('#createModifyRFID').val() == '') {
+			$.get('/api/last_unknown_code', function(data) {
+				if (data != '' && $('#createModifyRFID').val() == '') {
 					$('#createModifyRFID').val(data);
 				}
 			});
@@ -87,7 +87,7 @@ function newAccount(){
 	createCredentials.password = $('#createModifyPassword').val();
 
 	$.post( //pass login credentials to api
-		"/api/account/create", createCredentials,
+		'/api/account/create', createCredentials,
 	).done( //on successful login call dashboard()
 		function( accountData ) {
 			cleanUp();
@@ -96,7 +96,7 @@ function newAccount(){
 	).fail( //on failed login attempt alert user and clear login inputs
 		function( errorMessage ) {
 			alert(errorMessage.responseText);
-			$('#createPassword').val("");
+			$('#createPassword').val('');
 		}
 	);
 }
@@ -114,7 +114,7 @@ function showModifyUser() {
 	cleanUp();
 	$('#modifyAccount').show();
 	$('#createNewAccountButton').hide();
-  $('#modifyAccountButton').show();
+	$('#modifyAccountButton').show();
 
 	$('#modifyUsername').val(credentials.name);
 	$('#modifyRFID').val(credentials.rfid);
@@ -128,7 +128,7 @@ function modifyUser() {
 }
 
 function addBalance() {
-	var balance = prompt("Aufladen:", "0.00");
+	var balance = prompt('Aufladen:', '0.00');
 	//Regex 1 or more digits / comma or dot / exactly 2 digits
 	var regexBalance = new RegExp(/^(-?\d+((\,|\.)\d{2})?)$/);
 
@@ -141,7 +141,7 @@ function addBalance() {
 		}
 
 		$.post( //pass login credentials to api
-			"/api/money/add", balanceData,
+			'/api/money/add', balanceData,
 		).done( //on successful login call dashboard()
 			function( transactionData ) {
 				$('#transactionTableBody').empty();
@@ -151,8 +151,8 @@ function addBalance() {
 			function( errorMessage ) {
 				alert(errorMessage.responseText);
 				$('#start').show();
-				$('#InputUsername').val("");
-				$('#InputPassword').val("");
+				$('#InputUsername').val('');
+				$('#InputPassword').val('');
 			}
 		);
 	} else {
@@ -162,47 +162,47 @@ function addBalance() {
 
 function getCurrentBalance(accountData) {
 	var currentBalance = jQuery.parseJSON(accountData);
-	$('#userBalance').html(currentBalance[2] / 100 + "&euro;");
+	$('#userBalance').html(currentBalance[2] / 100 + '&euro;');
 }
 
 function getPaymentData() {
 	$.post( //fetch transaction log from api
-		"/api/money/view", credentials,
+		'/api/money/view', credentials,
 	).done(//fetched transactionData successfully
 		function( transactionData ) {
 			var transactions = jQuery.parseJSON(transactionData);
 			for(var i = 0; i < transactions.length; i++) {
 				//format unix time stamp to human readable format
 				var dateTransaction = new Date(transactions[i][2]*1000).toLocaleDateString();
-				dateTransaction += " " + new Date(transactions[i][2]*1000).toLocaleTimeString();
+				dateTransaction += ' ' + new Date(transactions[i][2]*1000).toLocaleTimeString();
 
-				var link = transactions[i][3] == "" ?
-					"#" : "https://www.codecheck.info/product.search?q=" + transactions[i][3];
+				var link = transactions[i][3] == '' ?
+					'#' : 'https://www.codecheck.info/product.search?q=' + transactions[i][3];
 
 				//convert cents to euro
 				transactions[i][0] = transactions[i][0] / 100;
 				//check if negative
-				var amountClass = transactions[i][0] < 0 ? "negativeAmount" : "positiveAmount";
+				var amountClass = transactions[i][0] < 0 ? 'negativeAmount' : 'positiveAmount';
 				//write '+' infront if positive
 				if(transactions[i][0] > 0)
-					transactions[i][0] = "+" + transactions[i][0];
+					transactions[i][0] = '+' + transactions[i][0];
 
 				$('#transactionTableBody').append(
-					$("<tr>")
+					$('<tr>')
 				.append(
-					$("<td>")
+					$('<td>')
 				.append(
 					dateTransaction
 				))
 				.append(
-					$("<td>")
+					$('<td>')
 				.append(
 					'<a href="' + link + '">' + transactions[i][1] + '</a>'
 				))
 				.append(
-					$("<td>")
+					$('<td>')
 				.append(
-					transactions[i][0] + "&euro;"
+					transactions[i][0] + '&euro;'
 				).addClass(amountClass)));
 			}
 		}
