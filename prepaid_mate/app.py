@@ -138,8 +138,8 @@ def account_modify():
 
         get_db().commit()
         app.logger.info('Account "%s modified (name=%d, code=%d, password=%d)',
-                            request.form['name'], 'new_name' in request.form,
-                            'new_code' in request.form, 'new_password' in request.form)
+                        request.form['name'], 'new_name' in request.form,
+                        'new_code' in request.form, 'new_password' in request.form)
 
     except Exception as exc:
         get_db().rollback()

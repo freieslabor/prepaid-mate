@@ -10,32 +10,36 @@ from configparser import ConfigParser
 import requests
 
 def password_reset(config_file, account_name, new_password):
-        conf = ConfigParser()
-        conf.read_file(open(config_file))
+    """
+    Sets the password of account "account_name" to "new_password". The config
+    file is used to retrieve the API URL.
+    """
+    conf = ConfigParser()
+    conf.read_file(open(config_file))
 
-        api_url = conf.get('DEFAULT', 'api-url')
-        superuser_pw = conf.get('DEFAULT', 'superuser-password')
+    api_url = conf.get('DEFAULT', 'api-url')
+    superuser_pw = conf.get('DEFAULT', 'superuser-password')
 
-        data = {
-            'superuserpassword': superuser_pw,
-            'name': account_name,
-            'new_password': hashlib.md5(new_password.encode('utf-8')).hexdigest(),
-        }
-        try:
-            req = requests.post('{}/api/account/modify'.format(api_url), data=data)
-        except Exception as exc:
-            print(exc)
-            return 1
+    data = {
+        'superuserpassword': superuser_pw,
+        'name': account_name,
+        'new_password': hashlib.md5(new_password.encode('utf-8')).hexdigest(),
+    }
+    try:
+        req = requests.post('{}/api/account/modify'.format(api_url), data=data)
+    except Exception as exc:
+        print(exc)
+        return 1
 
-        if req.status_code == 200:
-            print('Set password for "{}" successfully'.format(account_name))
-            return 0
-        elif req.status_code == 400:
-            print('Error: {}'.format(req.content.decode('utf-8')))
-            return 1
-        else:
-            print('backend error: {}'.format(req.content.decode('utf-8')))
-            return 1
+    if req.status_code == 200:
+        print('Set password for "{}" successfully'.format(account_name))
+        return 0
+    if req.status_code == 400:
+        print('Error: {}'.format(req.content.decode('utf-8')))
+        return 1
+
+    print('backend error: {}'.format(req.content.decode('utf-8')))
+    return 1
 
 def main():
     """Start scanner client with ./config"""

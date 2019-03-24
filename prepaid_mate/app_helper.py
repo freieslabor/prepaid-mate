@@ -96,9 +96,11 @@ def superuser_password_check(app, req):
 
     try:
         if 'name' in req.form:
-            account = query_db('SELECT id, name FROM accounts WHERE name=?', [req.form['name']], one=True)
+            account = query_db('SELECT id, name FROM accounts WHERE name=?', [req.form['name']],
+                               one=True)
         elif 'account_code' in req.form:
-            account = query_db('SELECT id, name FROM accounts WHERE barcode=?', [req.form['account_code']], one=True)
+            account = query_db('SELECT id, name FROM accounts WHERE barcode=?',
+                               [req.form['account_code']], one=True)
     except BadRequestKeyError:
         app.logger.info('superuser password check failed: no name or account_code given')
         raise KeyError('Incomplete request')
