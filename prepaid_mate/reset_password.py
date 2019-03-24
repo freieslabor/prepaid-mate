@@ -39,14 +39,21 @@ def password_reset(config_file, account_name, new_password):
 
 def main():
     """Start scanner client with ./config"""
-    conf_file = os.environ.get('CONFIG', './config')
+    # assuming we can strip 'bin' and the venv directory to get the config directory
+    conf_dir = os.path.join(os.path.dirname(sys.argv[0]), '..', '..')
+    conf_path = os.path.join(conf_dir, './config')
+    conf_file = os.environ.get('CONFIG', conf_path)
 
     if len(sys.argv) < 2:
         print('Usage: {} USER'.format(sys.argv[0]))
         exit(1)
 
     password = getpass.getpass('New password: ')
-    exit(password_reset(conf_file, sys.argv[1], password))
+    try:
+        exit(password_reset(conf_file, sys.argv[1], password))
+    except FileNotFoundError:
+        print('Config file not found ({}), set path via CONFIG env variable.'.format(conf_dir))
+        exit(1)
 
 if __name__ == '__main__':
     main()
