@@ -189,6 +189,14 @@ def test_account_code_does_not_exist_60s(flask_server):
     import json
     import time
 
+    # there was an issue with long codes being only partly replaced by the next
+    # one, so set a long code initially
+    data = {'code': '1234'*12}
+    req = requests.post('{}/account/code_exists'.format(API_URL), data=data)
+    status, name = json.loads(req.content.decode('utf-8'))
+    assert not status
+    assert name is None
+
     data = {'code': '1234'}
     req = requests.post('{}/account/code_exists'.format(API_URL), data=data)
     status, name = json.loads(req.content.decode('utf-8'))
