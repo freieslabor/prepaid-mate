@@ -3,6 +3,7 @@
 
 import logging
 import os
+import subprocess
 from enum import Enum
 from configparser import ConfigParser
 import select
