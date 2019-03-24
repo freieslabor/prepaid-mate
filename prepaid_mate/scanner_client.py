@@ -19,6 +19,9 @@ class UserError(Exception):
 class BackendError(Exception):
     """Backend did not behave as expected."""
 
+class DuplicateCodeError(Exception):
+    """User scanned the same code twice."""
+
 class Mode(Enum):
     """Modes the ScannerClient can be in."""
     ACCOUNT = 1
@@ -96,6 +99,10 @@ class ScannerClient:
         Submit the saved account code along with the order barcode to the API.
         """
         assert self.account_code is not None
+
+        if order_barcode == self.account_code:
+            raise DuplicateCodeError
+
         self.logger.info('account "%s" ordered "%s"', self.account_code, order_barcode)
         data = {'superuserpassword': self.conf.get('DEFAULT', 'superuser-password')}
         data['drink_barcode'] = order_barcode
@@ -153,6 +160,9 @@ class ScannerClient:
                             self.log_and_speak(exc.args[0], level=logging.ERROR)
                             self.reset()
                             continue
+                        except DuplicateCodeError:
+                            # ignore duplicate codes
+                            self.logger.info('ignoring duplicate code %s', code)
                         finally:
                             code = ''
                     else:
