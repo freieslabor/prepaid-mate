@@ -5,7 +5,7 @@ import logging
 import os
 import subprocess
 from enum import Enum
-from configparser import ConfigParser
+import configparser
 import select
 import time
 import json
@@ -33,7 +33,7 @@ class ScannerClient:
     CONF_SECTION = 'scanner-client'
 
     def __init__(self, config_file):
-        self.conf = ConfigParser()
+        self.conf = configparser.ConfigParser()
         self.conf.read_file(open(config_file))
         self.debug = self.conf.getboolean(ScannerClient.CONF_SECTION, 'debug')
         self.api_url = self.conf.get('DEFAULT', 'api-url')
