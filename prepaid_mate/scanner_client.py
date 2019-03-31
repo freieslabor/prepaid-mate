@@ -67,10 +67,7 @@ class ScannerClient:
             self.process_code_account(barcode)
             self.mode = Mode.ORDER
         elif self.mode is Mode.ORDER:
-            if barcode == self.conf.get(ScannerClient.CONF_SECTION, 'reset-barcode'):
-                self.log_and_speak('reset barcode recognized, ignoring order')
-            else:
-                self.process_barcode_order(barcode)
+            self.process_barcode_order(barcode)
             self.mode = Mode.ACCOUNT
 
     def process_code_account(self, account_code):
