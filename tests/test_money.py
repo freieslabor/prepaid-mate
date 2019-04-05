@@ -21,7 +21,7 @@ def test_money_add_view_account_view_good(flask_server, create_account):
 
     req = requests.post('{}/money/add'.format(API_URL), data=data_add)
     assert req.status_code == 200
-    assert req.content == b'ok'
+    assert req.content == b'1000'
 
     req = requests.post('{}/money/view'.format(API_URL), data=data)
     assert req.status_code == 200
@@ -53,7 +53,7 @@ def test_money_add_superuser_good(flask_server, create_account):
 
     req = requests.post('{}/money/add'.format(API_URL), data=data_add)
     assert req.status_code == 200
-    assert req.content == b'ok'
+    assert req.content == b'1000'
 
     req = requests.post('{}/money/view'.format(API_URL), data=data)
     assert req.status_code == 200
@@ -110,7 +110,7 @@ def test_money_add_incomplete(flask_server, create_account):
         del data_tmp[remove_input]
 
         req = requests.post('{}/money/add'.format(API_URL), data=data_tmp)
-        assert req.content != b'ok'
+        assert req.content != b'1000'
         assert req.status_code == 400
 
         req = requests.post('{}/money/view'.format(API_URL), data=data)
@@ -133,7 +133,7 @@ def test_money_add_empty(flask_server, create_account):
         data_tmp[empty_input] = ''
 
         req = requests.post('{}/money/add'.format(API_URL), data=data_tmp)
-        assert req.content != b'ok'
+        assert req.content != b'1000'
         assert req.status_code == 400
 
         req = requests.post('{}/money/view'.format(API_URL), data=data)

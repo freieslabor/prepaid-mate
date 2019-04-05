@@ -261,6 +261,8 @@ def money_add():
         get_db().commit()
         app.logger.info('Added %d cents to account "%s"', money, name)
 
+        return str(account_saldo + money)
+
     except Exception as exc:  # pylint: disable=broad-except
         get_db().rollback()
         if isinstance(exc, (BadRequestKeyError, KeyError)):
@@ -272,8 +274,6 @@ def money_add():
 
         app.logger.error(exc_str)
         return exc_str, 400
-
-    return 'ok'
 
 @app.route('/api/money/view', methods=['POST'])
 def money_view():
