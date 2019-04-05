@@ -110,7 +110,7 @@ function dashboard(accountData) {
 	cleanUp();
 	$('#dashboard').show();
 	var userName = jQuery.parseJSON(accountData)[0];
-	$('#userName').html(userName)
+	$('#userNameDropdown').html(userName)
 	getPaymentData();
 	getCurrentBalance(accountData);
 }

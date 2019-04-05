@@ -15,7 +15,11 @@
     <div class="row">
         <img class="col-2" src="images/logo.svg">
         <h1 class="col-8">Prepaid Mate</h1>
-        <button onclick="showModifyAccount()" class="col-2 btn btn-link" id="userName"></button>
+        <button class="col-2 btn btn-secondary dropdown-toggle" id="userNameDropdown" type="button" data-toggle="dropdown"></button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <button class="dropdown-item" onclick="showModifyAccount()" >Benutzer &auml;ndern</button>
+          <a class="dropdown-item" href="index.html">Logout</a>
+        </div>
     </div>
 
     <div class="view" id="start">
