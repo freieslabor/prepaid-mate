@@ -128,10 +128,37 @@ function showModifyAccount() {
 }
 
 function modifyAccount() {
-	//write credentials back to api
-	credentials.name = $('#modifyUsername').val();
-	credentials.rfid = $('#modifyRFID').val();
-	credentials.password = md5($('#modifyPassword').val());
+	var modifiedCredentials = {
+
+		name: credentials.name,
+		new_name: null,
+		new_code: null,
+		new_password: null,
+		password: credentials.password
+	}
+
+	if(!$('#modifyPassword').val()) {
+		alert('Password cannot be empty!');
+		return;
+	}
+
+	modifiedCredentials.new_name = $('#modifyUsername').val();
+	modifiedCredentials.new_code = $('#modifyRFID').val();
+	modifiedCredentials.new_password = md5($('#modifyPassword').val());
+
+	$.post( //pass login credentials to api
+		'/api/account/modify', modifiedCredentials,
+	).done( //on successful login call dashboard()
+		function() {
+			cleanUp();
+			showLogin();
+		}
+	).fail( //on failed login attempt alert user and clear login inputs
+		function( errorMessage ) {
+			alert(errorMessage.responseText);
+			$('#createPassword').val('');
+		}
+	);
 }
 
 function addBalance() {
