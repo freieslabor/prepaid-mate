@@ -21,8 +21,8 @@ def sql_integrity_error(exc):
     if exc.args[0].startswith(unique_error_prefix):
         field = exc.args[0].replace(unique_error_prefix, '')
         _, field = field.split('.', 1)
-        return '{} already exists'.format(field), 400
-    return 'Database integrity error', 400
+        return '{} already exists'.format(field)
+    return 'Database integrity error'
 
 def get_db():
     """
