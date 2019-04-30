@@ -69,7 +69,7 @@ def account_create():
     except sqlite3.IntegrityError as exc:
         exc_str = sql_integrity_error(exc)
         app.logger.error(exc_str)
-        return exc_str
+        return exc_str, 400
     except sqlite3.OperationalError as exc:
         app.logger.error(exc)
         return exc, 400
