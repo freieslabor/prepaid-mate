@@ -83,7 +83,7 @@ def user_password_check(app, req):
 
     return (account_id, name)
 
-def superuser_password_check(app, req):
+def superuser_password_check(app, req, account_check=True):
     """
     Helper to check superuser password and account name/code, taken from
     superuserpassword", "name"/"account_code" POST parameters. Sets POST
@@ -105,9 +105,9 @@ def superuser_password_check(app, req):
         app.logger.info('superuser password check failed: no name or account_code given')
         raise KeyError('Incomplete request')
 
-    if account is None:
+    if account_check and account is None:
         exc_str = 'No such account in database'
         app.logger.warning(exc_str)
         raise TypeError(exc_str)
 
-    return tuple(account)
+        return tuple(account)
