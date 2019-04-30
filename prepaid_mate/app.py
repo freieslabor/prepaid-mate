@@ -397,6 +397,54 @@ def last_unknown_code():
 
     return code
 
+@app.route('/api/add_drink', methods=['POST'])
+def add_drink():
+    """
+    Add drink with given parameters.
+
+    Expects POST parameters:
+    - name
+    - content_ml
+    - price
+    - barcode
+
+    Returns:
+    200 "ok"
+    400 with error message
+    500 on broken code
+    """
+    try:
+        superuser_password_check(app, request, False)
+    except (KeyError, TypeError, ValueError) as exc:
+        return exc.args[0], 400
+
+    try:
+        name = request.form['name']
+        content_ml = int(request.form['content_ml'])
+        price = int(request.form['price'])
+        barcode = request.form['barcode']
+
+        query_db('INSERT INTO drinks (name, content_ml, price, barcode) VALUES (?, ?, ?, ?)',
+                 [name, content_ml, price, barcode])
+        get_db().commit()
+        app.logger.info('Drink "%s" added', name)
+    except ValueError:
+        exc_str = 'content_ml and price must be integer'
+        app.logger.warning(exc_str)
+        return exc_str, 400
+    except BadRequestKeyError:
+        exc_str = 'Incomplete request'
+        app.logger.warning(exc_str)
+        return exc_str, 400
+    except sqlite3.IntegrityError as exc:
+        exc_str = sql_integrity_error(exc)
+        app.logger.error(exc_str)
+        return exc_str, 400
+    except sqlite3.OperationalError as exc:
+        app.logger.error(exc)
+        return exc, 400
+
+    return 'ok'
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1')
