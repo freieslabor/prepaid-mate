@@ -243,6 +243,19 @@ argument:
 
 You will be asked to type a new password.
 
+There is a new drink in the fridge. How can I add it to the database?
+---------------------------------------------------------------------
+
+Log in via SSH, scan the drink's barcode and run the new drink script within
+60 seconds:
+
+.. code-block:: bash
+
+    $ prepaid-mate-new-drink
+
+You will be asked if the preset barcode is correct. Then set a name, a price
+and volume.
+
 .. |python3.5| image:: https://img.shields.io/badge/python-3.5-blue.svg
     :alt: Supports python3.5
     :target: https://travis-ci.com/freieslabor/prepaid-mate
