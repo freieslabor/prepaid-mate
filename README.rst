@@ -27,9 +27,10 @@ Table of contents
 Design Principles
 =================
 
-* either the environment Prepaid Mate is running in is private or you need
+* either the environment Prepaid Mate is running in is trusted or you need
   transport layer encryption (e.g. SSL)
-* passwords are hashed, but not encrypted during transport
+* passwords are hashed, but not encrypted during transport (replay attacks are
+  possible without SSL)
 * no sessions, if you press refresh/back/forward in your browser, you won't
   be logged in anymore
 
