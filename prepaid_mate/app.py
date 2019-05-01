@@ -102,6 +102,7 @@ def account_modify():
     try:
         password_check(app, request)
     except (KeyError, TypeError, ValueError) as exc:
+        app.logger.error(exc.args[0])
         return exc.args[0], 400
 
     name = request.form['name']
@@ -174,6 +175,7 @@ def account_view():
         account = query_db('SELECT name, barcode, saldo FROM accounts WHERE id=?',
                            [account_id], one=True)
     except (KeyError, TypeError, ValueError) as exc:
+        app.logger.error(exc.args[0])
         return exc.args[0], 400
 
     return json.dumps(tuple(account))
@@ -206,7 +208,9 @@ def account_exists():
 
         return json.dumps((account_name is not None, account_name))
     except KeyError:
-        return 'Incomplete request', 400
+        exc_str = 'Incomplete request'
+        app.logger.error(exc_str)
+        return exc_str, 400
     except sqlite3.IntegrityError as exc:
         exc_str = sql_integrity_error(exc)
         app.logger.error(exc_str)
@@ -237,6 +241,7 @@ def money_add():
     try:
         account_id, name = password_check(app, request)
     except (KeyError, TypeError, ValueError) as exc:
+        app.logger.error(exc.args[0])
         return exc.args[0], 400
 
     try:
@@ -292,6 +297,7 @@ def money_view():
     try:
         account_id, _ = password_check(app, request)
     except (KeyError, TypeError, ValueError) as exc:
+        app.logger.error(exc.args[0])
         return exc.args[0], 400
 
     try:
@@ -328,6 +334,7 @@ def payment_perform():
     try:
         superuser_password_check(app, request)
     except (KeyError, TypeError, ValueError) as exc:
+        app.logger.error(exc.args[0])
         return exc.args[0], 400
 
     try:
@@ -416,6 +423,7 @@ def add_drink():
     try:
         superuser_password_check(app, request, False)
     except (KeyError, TypeError, ValueError) as exc:
+        app.logger.error(exc.args[0])
         return exc.args[0], 400
 
     try:
