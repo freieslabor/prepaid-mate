@@ -258,7 +258,7 @@ You will be asked if the preset barcode is correct. Then set name, price
 and volume.
 Please make sure the input data is correct. If you mess up, stop all Prepaid
 Mate services, make a database backup and edit the SQLite database manually
-(hint: [sqlitebrowser](https://sqlitebrowser.org/)).
+(hint: `sqlitebrowser <https://sqlitebrowser.org/>`_).
 Now start the services again.
 
 .. |python3.5| image:: https://img.shields.io/badge/python-3.5-blue.svg
