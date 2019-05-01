@@ -229,7 +229,8 @@ I accidentally added a wrong amount of money to my account. How can I fix it?
 -----------------------------------------------------------------------------
 
 Prepaid Mate works like a bank. Perform another transaction to cancel it out.
-You can add negative amounts of money (while your balance cannot).
+You can add negative amounts of money (while your balance cannot become
+negative).
 
 I forgot my password. How can I reset it?
 -----------------------------------------
@@ -253,7 +254,7 @@ Log in via SSH, scan the drink's barcode and run the new drink script within
 
     $ prepaid-mate-new-drink
 
-You will be asked if the preset barcode is correct. Then set a name, a price
+You will be asked if the preset barcode is correct. Then set name, price
 and volume.
 
 .. |python3.5| image:: https://img.shields.io/badge/python-3.5-blue.svg
