@@ -86,21 +86,25 @@ def user_password_check(app, req):
 def superuser_password_check(app, req, account_check=True):
     """
     Helper to check superuser password and account name/code, taken from
-    superuserpassword", "name"/"account_code" POST parameters. Sets POST
-    parameter "name" for easier post-processing. Returns (id, name) tuple.
+    superuserpassword", "name"/"account_code" POST parameters. If account_check is True
+    Returns (id, name) tuple, otherwise None.
     """
     if req.form['superuserpassword'] != \
         CONF.get('DEFAULT', 'superuser-password'):
         app.logger.warning('Account modification with wrong super user password')
         raise ValueError('Wrong superuserpassword')
 
+    account = None
+
     try:
         if 'name' in req.form:
             account = query_db('SELECT id, name FROM accounts WHERE name=?', [req.form['name']],
                                one=True)
+            account = tuple(account)
         elif 'account_code' in req.form:
             account = query_db('SELECT id, name FROM accounts WHERE barcode=?',
                                [req.form['account_code']], one=True)
+            account = tuple(account)
     except BadRequestKeyError:
         app.logger.info('superuser password check failed: no name or account_code given')
         raise KeyError('Incomplete request')
@@ -110,4 +114,5 @@ def superuser_password_check(app, req, account_check=True):
         app.logger.warning(exc_str)
         raise TypeError(exc_str)
 
-        return tuple(account)
+    if account is not None:
+        return account
