@@ -105,7 +105,7 @@ class ScannerClient:
                 raise UserError('Please identify first.')
 
             self.add_balance(self.add_balance_codes[barcode])
-            reset()
+            self.reset()
             return
 
         if self.order_time and time.time() > self.order_time + timeout:
