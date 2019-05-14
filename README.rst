@@ -262,6 +262,15 @@ Mate services, make a database backup and edit the SQLite database manually
 (hint: `sqlitebrowser <https://sqlitebrowser.org/>`_).
 Now start the services again.
 
+How can I add a custom sound as greeting?
+-----------------------------------------
+
+Copy a 48 kHz 16 bit LE mono wav (<=480 KiB) named ``<RFID code>.wav`` into the
+prepaid-mate root directory, next to ``config`` and ``db.sqlite``. Look up your
+RFID/barcode in the webinterface (log in -> click on your username -> modify
+account). If the file meets the requirements it will be played instead of the
+usual espeak "hi <user>". Make sure you have a unique recognizable sound bite.
+
 .. |python3.5| image:: https://img.shields.io/badge/python-3.5-blue.svg
     :alt: Supports python3.5
     :target: https://travis-ci.com/freieslabor/prepaid-mate
