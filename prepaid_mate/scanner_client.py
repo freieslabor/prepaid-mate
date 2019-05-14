@@ -55,6 +55,28 @@ class ScannerClient:
             espeak_call = self.conf.get(ScannerClient.CONF_SECTION, 'espeak-call')
             subprocess.call(espeak_call.format(msg=msg), shell=True)
 
+    def do_greet(self, name, max_size=480*1024):
+        """
+        If a wav named after the ID of the user is found and this wav does not exceed the max_size
+        play that instead of the common espeak greeting.
+        """
+        greet_wav = '{}.wav'.format(self.account_code)
+        try:
+            stat_size = os.stat(greet_wav).st_size
+        except FileNotFoundError:
+            stat_size = 0
+
+        if os.path.isfile(greet_wav) and stat_size <= max_size:
+            self.logger.info('playing {} as greeting for {}'.format(greet_wav, name))
+            greet_call = self.conf.get(ScannerClient.CONF_SECTION, 'greet-call')
+            subprocess.call(greet_call.format(wav=greet_wav), shell=True)
+        else:
+            if os.path.isfile(greet_wav):
+                self.logger.info('{} ({} bytes) exceeds maximum size ({} bytes), using espeak'
+                                 .format(greet_wav, stat_size, max_size))
+
+            self.log_and_speak('hi {name}'.format(name=name))
+
     def parse_add_balance_codes(self):
         """
         Parses config "<amount>-eur-code" codes and stores them in self.add_balance_codes dict.
@@ -131,7 +153,7 @@ class ScannerClient:
 
         status, name = json.loads(req.content.decode('utf-8'))
         if status:
-            self.log_and_speak('hi {name}'.format(name=name))
+            self.do_greet(name)
         else:
             raise UserError('code not recognized, register now')
 
