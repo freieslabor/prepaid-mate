@@ -133,7 +133,7 @@ class ScannerClient:
         if status:
             self.log_and_speak('hi {name}'.format(name=name))
         else:
-            raise UserError('account not recognized, register now')
+            raise UserError('code not recognized, register now')
 
         self.order_time = time.time()
 
