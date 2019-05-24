@@ -12,124 +12,127 @@
     <title>Prepaid Mate!</title>
   </head>
   <body>
-    <div class="row">
-        <img class="col-2" src="images/logo.svg">
-        <h1 class="col-8">Prepaid Mate</h1>
-        <button class="col-2 btn btn-secondary dropdown-toggle" id="userNameDropdown" type="button" data-toggle="dropdown"></button>
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-          <button class="dropdown-item" onclick="showModifyAccount()" >Benutzer &auml;ndern</button>
-          <a class="dropdown-item" href="index.html">Logout</a>
-        </div>
-    </div>
+    <div class="container">
+      <div class="row">
+          <img class="col-2" src="images/logo.svg">
+          <h1 class="col-9">Prepaid Mate</h1>
+          <button class="col-1 align-self-center btn btn-secondary dropdown-toggle" id="userNameDropdown" type="button" data-toggle="dropdown"></button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <button class="dropdown-item" onclick="showModifyAccount()" >Benutzer &auml;ndern</button>
+            <a class="dropdown-item" href="index.html">Logout</a>
+          </div>
+      </div>
 
-    <div class="view" id="start">
+      <div class="view" id="start">
+          <div class="row">
+            <div class="col-lg-2">
+               <div class="form-group">
+                  <label for="exampleInputEmail1">Nutzername</label>
+                  <input type="email" class="form-control loginfield" id="InputUsername" placeholder="Username" value="">
+                </div>
+                <div class="form-group">
+                  <label for="exampleInputPassword1">Password</label>
+                  <input type="password" class="form-control loginfield" id="InputPassword" placeholder="Password" value="">
+                </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col">
+              <button onclick="login()" class="btn btn-primary">Login</button>
+              <button onclick="showNewAccount()" class="btn btn-primary">Account erstellen</a>
+            </div>
+          </div>
+      </div>
+
+      <div class="view" id="newAccount">
+        <h1>Create New Account</h1>
         <div class="row">
           <div class="col-2">
              <div class="form-group">
-                <label for="exampleInputEmail1">Nutzername</label>
-                <input type="email" class="form-control loginfield" id="InputUsername" placeholder="Username" value="">
+                <label for="createUsername">Nutzername</label>
+                <input type="text" class="form-control createmodifyfield" id="createModifyUsername" placeholder="Username">
               </div>
               <div class="form-group">
-                <label for="exampleInputPassword1">Password</label>
-                <input type="password" class="form-control loginfield" id="InputPassword" placeholder="Password" value="">
+                <label for="createRFID">RFID</label>
+                <input type="text" class="form-control createmodifyfield" id="createModifyRFID" placeholder="RFID">
+                <p>Wenn dieses Feld leer ist und ein unbekannter RFID/Barcode gescannt wird, wird dieser hier automatisch eingefügt.</p>
+              </div>
+              <div class="form-group">
+                <label for="createPassword">Password</label>
+                <input type="password" class="form-control createmodifyfield" id="createModifyPassword" placeholder="Password">
               </div>
           </div>
         </div>
-
         <div class="row">
           <div class="col">
-            <button onclick="login()" class="btn btn-primary">Login</button>
-            <button onclick="showNewAccount()" class="btn btn-primary">Account erstellen</a>
+            <div class="alert alert-danger">
+                Diese Software wurde nach bestem Wissen und Gewissen geschrieben.
+                Der Quellcode ist <a href="https://github.com/freieslabor/prepaid-mate/">open-source</a>.
+                Dennoch kann Fehlerfreiheit nicht garantiert werden.
+                Ich nehme deshalb zur Kenntnis, dass die Verwaltung meines Guthabens jederzeit ausfallen kann
+                und keinerlei Anspruch auf Wiederinbetriebnahme oder Rekonstruktion der Transaktionen/des Kontostands besteht.
+            </div>
           </div>
         </div>
-    </div>
-
-    <div class="view" id="newAccount">
-      <h1>Create New Account</h1>
-      <div class="row">
-        <div class="col-2">
-           <div class="form-group">
-              <label for="createUsername">Nutzername</label>
-              <input type="text" class="form-control createmodifyfield" id="createModifyUsername" placeholder="Username">
-            </div>
-            <div class="form-group">
-              <label for="createRFID">RFID</label>
-              <input type="text" class="form-control createmodifyfield" id="createModifyRFID" placeholder="RFID">
-              <p>Wenn dieses Feld leer ist und ein unbekannter RFID/Barcode gescannt wird, wird dieser hier automatisch eingefügt.</p>
-            </div>
-            <div class="form-group">
-              <label for="createPassword">Password</label>
-              <input type="password" class="form-control createmodifyfield" id="createModifyPassword" placeholder="Password">
-            </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col">
-          <div class="alert alert-danger">
-Diese Software wurde nach bestem Wissen und Gewissen geschrieben.
-Der Quellcode ist <a href="https://github.com/freieslabor/prepaid-mate/">open-source</a>.
-Dennoch kann Fehlerfreiheit nicht garantiert werden.
-Ich nehme deshalb zur Kenntnis, dass die Verwaltung meines Guthabens jederzeit ausfallen kann
-und keinerlei Anspruch auf Wiederinbetriebnahme oder Rekonstruktion der Transaktionen/des Kontostands besteht.
+        <div class="row">
+          <div class="col">
+            <button onclick="newAccount()" id="createNewAccountButton" class="btn btn-primary">Account erstellen</a>
           </div>
         </div>
       </div>
-      <div class="row">
-        <div class="col">
-          <button onclick="newAccount()" id="createNewAccountButton" class="btn btn-primary">Account erstellen</a>
+
+      <div class="view" id="dashboard">
+        <div class="row">
+          <div class="col col-md-auto">
+            <div class="border border-primary rounded">
+              <h1>Guthaben:</h1>
+              <h1 id="userBalance"></h1>
+              <button id="addBalance" onclick="addBalance()" class="btn btn-primary">Guthaben aufladen</button>
+            </div>
+          </div>
+          <table class="table col col-lg-8">
+            <thead>
+              <tr>
+                <th scope="col">Datum</th>
+                <th scope="col">Verwendungszweck</th>
+                <th scope="col">Buchungsbetrag</th>
+              </tr>
+            </thead>
+            <tbody id="transactionTableBody">
+              <!--will be filled by JavaScript-->
+            </tbody>
+          </table>
         </div>
       </div>
-    </div>
 
-    <div class="view" id="dashboard">
-      <div class="row">
-        <div class="col-sm-2">
-          <div class="border border-primary rounded">
-            <h1>Guthaben:</h1>
-            <h1 id="userBalance"></h1>
-            <button id="addBalance" onclick="addBalance()" class="btn btn-primary">Guthaben aufladen</button>
+      <div class="view" id="modifyAccount">
+        <h1>Modify Your Account</h1>
+        <div class="row">
+          <div class="col-2">
+             <div class="form-group">
+                <label for="modifyUsername">Nutzername</label>
+                <input type="text" class="form-control" id="modifyUsername" placeholder="Username">
+              </div>
+              <div class="form-group">
+                <label for="modifyRFID">RFID</label>
+                <input type="text" class="form-control" id="modifyRFID" placeholder="RFID">
+                <p>Wenn dieses Feld leer ist und ein unbekannter RFID/Barcode gescannt wird, wird dieser hier automatisch eingefügt.</p>
+              </div>
+              <div class="form-group">
+                <label for="modifyPassword">Password</label>
+                <input type="password" class="form-control" id="modifyPassword" placeholder="Password">
+              </div>
           </div>
         </div>
-        <table class="table col-xl-10">
-          <thead>
-            <tr>
-              <th scope="col">Datum</th>
-              <th scope="col">Verwendungszweck</th>
-              <th scope="col">Buchungsbetrag</th>
-            </tr>
-          </thead>
-          <tbody id="transactionTableBody">
-            <!--will be filled by JavaScript-->
-          </tbody>
-        </table>
+        <div class="row">
+          <div class="col">
+            <button onclick="modifyAccount()" id="modifyAccountButton" class="btn btn-primary">Confirm</a>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="view" id="modifyAccount">
-      <h1>Modify Your Account</h1>
-      <div class="row">
-        <div class="col-2">
-           <div class="form-group">
-              <label for="modifyUsername">Nutzername</label>
-              <input type="text" class="form-control" id="modifyUsername" placeholder="Username">
-            </div>
-            <div class="form-group">
-              <label for="modifyRFID">RFID</label>
-              <input type="text" class="form-control" id="modifyRFID" placeholder="RFID">
-              <p>Wenn dieses Feld leer ist und ein unbekannter RFID/Barcode gescannt wird, wird dieser hier automatisch eingefügt.</p>
-            </div>
-            <div class="form-group">
-              <label for="modifyPassword">Password</label>
-              <input type="password" class="form-control" id="modifyPassword" placeholder="Password">
-            </div>
-        </div>
-      </div>
-      <div class="row">
-        <div class="col">
-          <button onclick="modifyAccount()" id="modifyAccountButton" class="btn btn-primary">Confirm</a>
-        </div>
-      </div>
-    </div>
 
     <!-- Optional JavaScript -->
     <script src="js/md5.min.js"></script>
