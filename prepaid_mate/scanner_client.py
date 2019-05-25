@@ -53,7 +53,7 @@ class ScannerClient:
         self.logger.log(level, msg)
         if not self.debug:
             espeak_call = self.conf.get(ScannerClient.CONF_SECTION, 'espeak-call')
-            subprocess.call(espeak_call.format(msg=msg), shell=True)
+            subprocess.Popen(espeak_call.format(msg=msg), shell=True)
 
     def do_greet(self, name, max_size=480*1024):
         """
@@ -69,7 +69,7 @@ class ScannerClient:
         if os.path.isfile(greet_wav) and stat_size <= max_size:
             self.logger.info('playing {} as greeting for {}'.format(greet_wav, name))
             greet_call = self.conf.get(ScannerClient.CONF_SECTION, 'greet-call')
-            subprocess.call(greet_call.format(wav=greet_wav), shell=True)
+            subprocess.Popen(greet_call.format(wav=greet_wav), shell=True)
         else:
             if os.path.isfile(greet_wav):
                 self.logger.info('{} ({} bytes) exceeds maximum size ({} bytes), using espeak'
