@@ -31,6 +31,8 @@ class ScannerClient:
     A drink is always identified by barcode.
     """
     CONF_SECTION = 'scanner-client'
+    PAYMENT_SUCCEEDED_AUDIO = 'payment_success.wav'
+    PAYMENT_FAILED_AUDIO = 'payment_failed.wav'
 
     def __init__(self, config_file):
         self.conf = configparser.ConfigParser()
@@ -77,6 +79,13 @@ class ScannerClient:
 
             self.log_and_speak('hi {name}'.format(name=name))
 
+    def play_status_sound(self, wav):
+        if os.path.isfile(wav):
+            play_call = self.conf.get(ScannerClient.CONF_SECTION, 'play-call')
+            # intentional blocking call for short status sound
+            subprocess.call(play_call.format(wav=ScannerClient.PAYMENT_SUCCEEDED_AUDIO),
+                            shell=True)
+
     def parse_add_balance_codes(self):
         """
         Parses config "<amount>-eur-code" codes and stores them in self.add_balance_codes dict.
@@ -106,6 +115,7 @@ class ScannerClient:
         if req.status_code == 200:
             self.logger.info('add balance callback successful: %s', req.content.decode('utf-8'))
             saldo = int(req.content.decode('utf-8'))/100.0
+            self.play_status(ScannerClient.PAYMENT_SUCCEEDED_AUDIO)
             self.log_and_speak('Added {} Euro, your balance is {} Euro'.format(amount, saldo))
         elif req.status_code == 400:
             self.logger.error('add balance callback failed: %s (%d)', req.content.decode('utf-8'),
@@ -175,6 +185,7 @@ class ScannerClient:
         if req.status_code == 200:
             self.logger.info('order callback successful: %s', req.content.decode('utf-8'))
             saldo = int(req.content.decode('utf-8'))/100.0
+            self.play_status(ScannerClient.PAYMENT_SUCCEEDED_AUDIO)
             self.log_and_speak('Payment successful: your balance is {} Euro' \
                                .format(saldo))
         elif req.status_code == 400:
@@ -224,6 +235,7 @@ class ScannerClient:
                         except (UserError, BackendError,
                                 requests.exceptions.ConnectionError) as exc:
                             self.log_and_speak(exc.args[0], level=logging.ERROR)
+                            self.play_status(ScannerClient.PAYMENT_FAILED_AUDIO)
                             self.reset()
                         finally:
                             code = ''
