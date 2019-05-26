@@ -68,7 +68,7 @@ class ScannerClient:
 
         if os.path.isfile(greet_wav) and stat_size <= max_size:
             self.logger.info('playing {} as greeting for {}'.format(greet_wav, name))
-            greet_call = self.conf.get(ScannerClient.CONF_SECTION, 'greet-call')
+            greet_call = self.conf.get(ScannerClient.CONF_SECTION, 'play-call')
             subprocess.Popen(greet_call.format(wav=greet_wav), shell=True)
         else:
             if os.path.isfile(greet_wav):
