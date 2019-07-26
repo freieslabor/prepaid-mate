@@ -427,7 +427,7 @@ def add_drink():
         return exc.args[0], 400
 
     try:
-        name = request.form['name']
+        name = request.form['drink_name']
         content_ml = int(request.form['content_ml'])
         price = int(request.form['price'])
         barcode = request.form['barcode']
