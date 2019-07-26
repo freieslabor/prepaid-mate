@@ -86,7 +86,7 @@ def user_password_check(app, req):
 def superuser_password_check(app, req, account_check=True):
     """
     Helper to check superuser password and account name/code, taken from
-    superuserpassword", "name"/"account_code" POST parameters. If account_check is True
+    "superuserpassword", "name"/"account_code" POST parameters. If account_check is True
     Returns (id, name) tuple, otherwise None.
     """
     if req.form['superuserpassword'] != \
