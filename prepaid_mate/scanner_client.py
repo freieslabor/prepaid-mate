@@ -83,8 +83,7 @@ class ScannerClient:
         if os.path.isfile(wav):
             play_call = self.conf.get(ScannerClient.CONF_SECTION, 'play-call')
             # intentional blocking call for short status sound
-            subprocess.call(play_call.format(wav=ScannerClient.PAYMENT_SUCCEEDED_AUDIO),
-                            shell=True)
+            subprocess.call(play_call.format(wav=wav), shell=True)
 
     def parse_add_balance_codes(self):
         """
