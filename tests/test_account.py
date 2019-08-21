@@ -172,9 +172,10 @@ def test_account_code_exists(flask_server, create_account):
     account = create_account
     data = {'code': account['code']}
     req = requests.post('{}/account/code_exists'.format(API_URL), data=data)
-    status, name = json.loads(req.content.decode('utf-8'))
+    status, name, saldo = json.loads(req.content.decode('utf-8'))
     assert status
     assert name is not None
+    assert saldo is not None
 
     req = requests.get('{}/last_unknown_code'.format(API_URL))
     assert not req.content.decode('utf-8')
@@ -193,15 +194,17 @@ def test_account_code_does_not_exist_60s(flask_server):
     # one, so set a long code initially
     data = {'code': '1234'*12}
     req = requests.post('{}/account/code_exists'.format(API_URL), data=data)
-    status, name = json.loads(req.content.decode('utf-8'))
+    status, name, saldo = json.loads(req.content.decode('utf-8'))
     assert not status
     assert name is None
+    assert saldo is None
 
     data = {'code': '1234'}
     req = requests.post('{}/account/code_exists'.format(API_URL), data=data)
-    status, name = json.loads(req.content.decode('utf-8'))
+    status, name, saldo = json.loads(req.content.decode('utf-8'))
     assert not status
     assert name is None
+    assert saldo is None
 
     req = requests.get('{}/last_unknown_code'.format(API_URL))
     assert req.content.decode('utf-8') == data['code']

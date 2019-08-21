@@ -183,9 +183,9 @@ def account_view():
 @app.route('/api/account/code_exists', methods=['POST'])
 def account_exists():
     """
-    Returns true and account name if the given account identified by code exists
-    otherwise false and null. If the account does not exist the code is saved
-    in a temporary file as a side-effect.
+    Returns (True, <account name>, <saldo>) if the given account identified by
+    code exists otherwise (False, None, None). If the account does not exist
+    the code is saved in a temporary file as a side-effect.
 
     Expects POST parameters:
     - code
@@ -196,17 +196,19 @@ def account_exists():
     """
 
     try:
+        account_name = None
+        saldo = None
         code = request.form['code']
-        account_name = query_db('SELECT name FROM accounts WHERE barcode = ?',
-                                [code], one=True)
-        if account_name is None:
+        result = query_db('SELECT name, saldo FROM accounts WHERE barcode = ?',
+                                       [code], one=True)
+        if result is None:
             UNKNOWN_CODE.truncate(0)
             UNKNOWN_CODE.write(code.encode('utf-8'))
             UNKNOWN_CODE.seek(0)
         else:
-            account_name = tuple(account_name)[0]
+            account_name, saldo = tuple(result)
 
-        return json.dumps((account_name is not None, account_name))
+        return json.dumps((account_name is not None, account_name, saldo))
     except KeyError:
         exc_str = 'Incomplete request'
         app.logger.error(exc_str)
