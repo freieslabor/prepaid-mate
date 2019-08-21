@@ -139,6 +139,20 @@ class ScannerClient:
             self.reset()
             return
 
+        if barcode == self.conf.get(ScannerClient.CONF_SECTION, 'speak-balance-code'):
+            if self.mode is Mode.ACCOUNT:
+                raise UserError('Please identify first.')
+
+            data = {'code': self.account_code}
+            req = requests.post('{}/api/account/code_exists'.format(self.api_url), data=data)
+            if req.status_code != 200:
+                raise BackendError('backend error during balance retrieval')
+
+            status, _, saldo = json.loads(req.content.decode('utf-8'))
+            assert status is True
+            self.log_and_speak('Your balance is {} Euro'.format(saldo))
+            self.reset()
+
         if self.order_time and time.time() > self.order_time + timeout:
             self.logger.info('order timeout, back in account scan mode')
             self.reset()
@@ -160,7 +174,7 @@ class ScannerClient:
         if req.status_code != 200:
             raise BackendError('backend error during account verification')
 
-        status, name = json.loads(req.content.decode('utf-8'))
+        status, name, _ = json.loads(req.content.decode('utf-8'))
         if status:
             self.do_greet(name)
         else:

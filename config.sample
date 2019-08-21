@@ -14,3 +14,4 @@ play-call = ( flock -n 9 || exit 1; /usr/bin/aplay -r 48000 -c 1 -f S16_LE "{wav
 10-eur-code = 323456789
 20-eur-code = 423456789
 50-eur-code = 523456789
+speak-balance-code = 623456789
