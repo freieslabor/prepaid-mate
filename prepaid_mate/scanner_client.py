@@ -150,7 +150,7 @@ class ScannerClient:
 
             status, _, saldo = json.loads(req.content.decode('utf-8'))
             assert status is True
-            self.log_and_speak('Your balance is {} Euro'.format(saldo))
+            self.log_and_speak('Your balance is {} Euro'.format(saldo/100))
             self.reset()
 
         if self.order_time and time.time() > self.order_time + timeout:
