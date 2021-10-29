@@ -1,4 +1,4 @@
-|python3.5| |python3.6| |python3.7| |build-status| |lgtm-alerts| |lgtm-grade-python| |lgtm-grade-javascript|
+|test-status| |lgtm-alerts| |lgtm-grade-python| |lgtm-grade-javascript|
 
 Prepaid Mate
 ============
@@ -273,21 +273,10 @@ RFID/barcode in the webinterface (log in -> click on your username -> modify
 account). If the file meets the requirements it will be played instead of the
 usual espeak "hi <user>". Make sure you have a unique recognizable sound bite.
 
-.. |python3.5| image:: https://img.shields.io/badge/python-3.5-blue.svg
-    :alt: Supports python3.5
-    :target: https://travis-ci.com/freieslabor/prepaid-mate
 
-.. |python3.6| image:: https://img.shields.io/badge/python-3.6-blue.svg
-    :alt: Supports python3.6
-    :target: https://travis-ci.com/freieslabor/prepaid-mate
-
-.. |python3.7| image:: https://img.shields.io/badge/python-3.7-blue.svg
-    :alt: Supports python3.7
-    :target: https://travis-ci.com/freieslabor/prepaid-mate
-
-.. |build-status| image:: https://travis-ci.com/freieslabor/prepaid-mate.svg?branch=master
-    :alt: Travis build status
-    :target: https://travis-ci.com/freieslabor/prepaid-mate
+.. |test-status| image:: https://github.com/freieslabor/prepaid-mate/actions/workflows/tests.yml/badge.svg
+    :alt: GitHub Actions Test Status
+    :target: https://github.com/freieslabor/prepaid-mate/actions/workflows/tests.yml
 
 .. |lgtm-alerts| image:: https://img.shields.io/lgtm/alerts/g/freieslabor/prepaid-mate.svg?logo=lgtm&logoWidth=18
     :alt: Total lgtm alerts

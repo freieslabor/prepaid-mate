@@ -1,0 +1,40 @@
+
+name: tests
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.7', '3.8', '3.9', '3.10']
+        experimental: [false]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('*requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+    - name: Install system test dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install umockdev
+    - name: Install python dependencies
+      run: |
+        pip install --upgrade pip setuptools wheel
+        pip install -r requirements.txt
+        pip install -r test-requirements.txt
+    - name: Install prepaid-mate
+      run: |
+        pip install -e .
+    - name: Test with pytest
+      run: |
+        pytest -v
