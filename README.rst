@@ -236,6 +236,8 @@ negative).
 I forgot my password. How can I reset it?
 -----------------------------------------
 
+Find the physical device the service is running on, you'll find the login
+credentials on it.
 Log in via SSH and run the reset password script with your username as
 argument:
 
