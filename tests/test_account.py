@@ -63,7 +63,7 @@ def test_account_modification_good(flask_server, create_account):
     assert req.status_code == 200
 
 def test_account_modification_superuser_good(flask_server, create_account):
-    """Test if account modification works."""
+    """Test if account modification with superuser pw works."""
     import requests
 
     config = flask_server
@@ -80,7 +80,7 @@ def test_account_modification_superuser_good(flask_server, create_account):
     assert req.status_code == 200
 
 def test_account_modification_superuser_wrong_pw(flask_server, create_account):
-    """Test if account modification works."""
+    """Test if account modification with wrong superuser pw fails as expected."""
     import requests
 
     config = flask_server
