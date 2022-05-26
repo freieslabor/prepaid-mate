@@ -26,7 +26,7 @@ def add_drink(config, name, content_ml, price, barcode):
 
     data = {
         'superuserpassword': superuser_pw,
-        'drink_name': name,
+        'name': name,
         'content_ml': content_ml,
         'price': price,
         'barcode': barcode,

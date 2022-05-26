@@ -429,7 +429,7 @@ def add_drink():
         return exc.args[0], 400
 
     try:
-        name = request.form['drink_name']
+        name = request.form['name']
         content_ml = int(request.form['content_ml'])
         price = int(request.form['price'])
         barcode = request.form['barcode']
