@@ -434,6 +434,9 @@ def drink_create():
         price = int(request.form['price'])
         barcode = request.form['barcode']
 
+        if not all((name, barcode)):
+            raise BadRequestKeyError
+
         query_db('INSERT INTO drinks (name, content_ml, price, barcode) VALUES (?, ?, ?, ?)',
                  [name, content_ml, price, barcode])
         get_db().commit()
