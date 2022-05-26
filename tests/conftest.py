@@ -198,8 +198,9 @@ def create_account():
     import requests
 
     # the identifier matches the rfid code in tests/umockdev/rfid.events
-    data = {'name': 'foo', 'password':'bar', 'code': '0016027465'}
-    requests.post('{}/account/create'.format(pytest.API_URL), data=data)
+    data = {'name': 'foo', 'password': 'bar', 'code': '0016027465'}
+    req = requests.post('{}/account/create'.format(pytest.API_URL), data=data)
+    req.raise_for_status()
     return data
 
 @pytest.fixture(scope='function')
@@ -213,7 +214,8 @@ def create_account_with_balance(create_account):  # pylint: disable=redefined-ou
 
     def _create_account_with_balance(balance):
         data['money'] = balance
-        requests.post('{}/money/add'.format(pytest.API_URL), data=data)
+        req = requests.post('{}/money/add'.format(pytest.API_URL), data=data)
+        req.raise_for_status()
         return data
 
     return _create_account_with_balance
