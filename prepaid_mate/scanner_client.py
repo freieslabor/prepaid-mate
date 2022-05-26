@@ -185,6 +185,14 @@ class ScannerClient:
         if status:
             self.do_greet(name)
         else:
+            req = requests.post('{}/api/drink/view'.format(self.api_url), data={'barcode': self.account_code})
+            if req.status_code == 200:
+                name, _, price = json.loads(req.content.decode('utf-8'))
+                price = self.cents_to_natural_speech(price)
+                self.log_and_speak('Enjoy a cool {}, only {}'.format(name, price))
+                self.reset()
+                return
+
             raise UserError('code not recognized, register now')
 
         self.order_time = time.time()
