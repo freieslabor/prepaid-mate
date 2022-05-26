@@ -28,3 +28,14 @@ def test_client_payment(flask_server, create_account_with_balance, create_drink,
     assert 'account "{}" ordered "{}"'.format(data['code'], drink['barcode']) in get_log_line(proc)
     assert 'calling API with' in get_log_line(proc)
     assert 'callback successful: ' in get_log_line(proc)
+
+def test_client_drink_view(flask_server, create_drink, scanner_client):
+    """Test drink view on scanner_client.py with flask server and preset drink."""
+    order_recorded = '42254300'
+    proc = scanner_client(enabled='barcode')
+    drink = create_drink
+
+    assert 'account code: {}'.format(drink['barcode']) in get_log_line(proc)
+
+    # simplification: works only for drink price in whole numbers
+    assert 'Enjoy a cool {}, only {} Euro'.format(drink['name'], drink['price']//100) in get_log_line(proc)
