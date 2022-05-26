@@ -459,6 +459,38 @@ def drink_create():
 
     return 'ok'
 
+@app.route('/api/drink/view', methods=['POST'])
+def drink_view():
+    """
+    Get drink with given parameters.
+
+    Expects POST parameters:
+    - drink_barcode
+
+    Returns 200 with json tuple (name, content_ml, price)
+    400 with error message
+    500 on broken code
+    """
+    try:
+        barcode = request.form['barcode']
+        drink = query_db('SELECT name, content_ml, price FROM drinks WHERE barcode=?', [barcode], one=True)
+
+    except (KeyError, BadRequestKeyError):
+        exc_str = 'Incomplete request'
+        app.logger.warning(exc_str)
+        return exc_str, 400
+    except sqlite3.IntegrityError as exc:
+        exc_str = sql_integrity_error(exc)
+        app.logger.error(exc_str)
+        return exc_str, 400
+
+    try:
+        return json.dumps(tuple(drink))
+    except TypeError:
+        exc_str = 'No such drink in database'
+        app.logger.warning(exc_str)
+        return exc_str, 400
+
 if __name__ == "__main__":
     app.run(host='127.0.0.1')
 else:

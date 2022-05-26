@@ -219,3 +219,17 @@ def create_account_with_balance(create_account):  # pylint: disable=redefined-ou
         return data
 
     return _create_account_with_balance
+
+@pytest.fixture(scope='function')
+def create_drink(flask_server):
+    """Create a drink with some predefined parameters."""
+    import requests
+
+    config = flask_server
+
+    data = {'name': 'foo', 'content_ml': 100, 'price': 100, 'barcode': '42254300'}
+    data['superuserpassword'] = config['DEFAULT']['superuser-password']
+    req = requests.post('{}/drink/create'.format(pytest.API_URL), data=data)
+    req.raise_for_status()
+
+    return data

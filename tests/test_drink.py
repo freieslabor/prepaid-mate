@@ -80,3 +80,27 @@ def test_drink_creation_superuser_wrong_pw(flask_server):
     req = requests.post('{}/drink/create'.format(API_URL), data=data)
     assert req.content == b'Wrong superuserpassword'
     assert req.status_code == 400
+
+def test_drink_view_good(flask_server, create_drink):
+    """Test if drink view works."""
+    import json
+    import requests
+
+    data = create_drink
+    post_data = {'barcode': data['barcode']}
+
+    req = requests.post('{}/drink/view'.format(API_URL), data=post_data)
+    req.raise_for_status()
+    assert json.loads(req.content.decode('utf-8')) == \
+            [data['name'], data['content_ml'], data['price']]
+
+def test_drink_view_inexistent_drink(flask_server, create_drink):
+    """Test if drink view for inexistent drink fails as expected."""
+    import requests
+
+    data = create_drink
+    data['barcode'] += '123'
+
+    req = requests.post('{}/drink/view'.format(API_URL), data=data)
+    assert req.content == b'No such drink in database'
+    assert req.status_code == 400
