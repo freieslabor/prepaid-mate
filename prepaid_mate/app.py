@@ -406,10 +406,10 @@ def last_unknown_code():
 
     return code
 
-@app.route('/api/add_drink', methods=['POST'])
-def add_drink():
+@app.route('/api/drink/create', methods=['POST'])
+def drink_create():
     """
-    Add drink with given parameters.
+    Create drink with given parameters.
 
     Expects POST parameters:
     - name

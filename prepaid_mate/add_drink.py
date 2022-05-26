@@ -32,7 +32,7 @@ def add_drink(config, name, content_ml, price, barcode):
         'barcode': barcode,
     }
     try:
-        req = requests.post('{}/api/add_drink'.format(api_url), data=data)
+        req = requests.post('{}/api/drink/create'.format(api_url), data=data)
     except Exception as exc:
         print(exc)
         return 1
