@@ -85,6 +85,12 @@ class ScannerClient:
             # intentional blocking call for short status sound
             subprocess.call(play_call.format(wav=wav), shell=True)
 
+    def cents_to_natural_speech(self, amount):
+        amount = int(amount)
+        amount = str(round(amount/100)) if amount % 100 == 0 else str(amount/100)
+
+        return '{} Euro'.format(amount)
+
     def parse_add_balance_codes(self):
         """
         Parses config "<amount>-eur-code" codes and stores them in self.add_balance_codes dict.
@@ -113,9 +119,9 @@ class ScannerClient:
 
         if req.status_code == 200:
             self.logger.info('add balance callback successful: %s', req.content.decode('utf-8'))
-            saldo = int(req.content.decode('utf-8'))/100.0
             self.play_status_sound(ScannerClient.PAYMENT_SUCCEEDED_AUDIO)
-            self.log_and_speak('Added {} Euro, your balance is {} Euro'.format(amount, saldo))
+            saldo = self.cents_to_natural_speech(req.content.decode('utf-8'))
+            self.log_and_speak('Added {} Euro, your balance is {}'.format(amount, saldo_speech))
         elif req.status_code == 400:
             self.logger.error('add balance callback failed: %s (%d)', req.content.decode('utf-8'),
                               req.status_code)
@@ -150,7 +156,8 @@ class ScannerClient:
 
             status, _, saldo = json.loads(req.content.decode('utf-8'))
             assert status is True
-            self.log_and_speak('Your balance is {} Euro'.format(saldo/100))
+            saldo = self.cents_to_natural_speech(saldo)
+            self.log_and_speak('Your balance is {}'.format(saldo))
             self.reset()
 
         if self.order_time and time.time() > self.order_time + timeout:
@@ -197,10 +204,9 @@ class ScannerClient:
 
         if req.status_code == 200:
             self.logger.info('order callback successful: %s', req.content.decode('utf-8'))
-            saldo = int(req.content.decode('utf-8'))/100.0
             self.play_status_sound(ScannerClient.PAYMENT_SUCCEEDED_AUDIO)
-            self.log_and_speak('Payment successful: your balance is {} Euro' \
-                               .format(saldo))
+            saldo = self.cents_to_natural_speech(req.content.decode('utf-8'))
+            self.log_and_speak('Payment successful: your balance is {}'.format(saldo))
         elif req.status_code == 400:
             self.logger.error('order callback failed: %s (%d)', req.content.decode('utf-8'),
                               req.status_code)
