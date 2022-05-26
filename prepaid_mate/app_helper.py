@@ -94,6 +94,9 @@ def superuser_password_check(app, req, account_check=True):
         app.logger.warning('Account modification with wrong super user password')
         raise ValueError('Wrong superuserpassword')
 
+    if not account_check:
+        return None
+
     account = None
 
     try:
@@ -109,10 +112,9 @@ def superuser_password_check(app, req, account_check=True):
         app.logger.info('superuser password check failed: no name or account_code given')
         raise KeyError('Incomplete request')
 
-    if account_check and account is None:
+    if account is None:
         exc_str = 'No such account in database'
         app.logger.warning(exc_str)
         raise TypeError(exc_str)
 
-    if account is not None:
-        return account
+    return account
