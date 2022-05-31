@@ -165,8 +165,8 @@ class ScannerClient:
             self.reset()
 
         if self.mode is Mode.ACCOUNT:
-            self.process_code_account(barcode)
-            self.mode = Mode.ORDER
+            if self.process_code_account(barcode):
+                self.mode = Mode.ORDER
         elif self.mode is Mode.ORDER:
             self.process_barcode_order(barcode)
             self.mode = Mode.ACCOUNT
@@ -191,11 +191,12 @@ class ScannerClient:
                 price = self.cents_to_natural_speech(price)
                 self.log_and_speak('Enjoy a cool {}, only {}'.format(name, price))
                 self.reset()
-                return
+                return False
 
             raise UserError('code not recognized, register now')
 
         self.order_time = time.time()
+        return True
 
     def process_barcode_order(self, order_barcode):
         """
