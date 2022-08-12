@@ -111,7 +111,7 @@ def account_modify():
         try:
             new_code = request.form['new_code']
             if not new_code:
-                raise ValueError
+                raise BadRequestKeyError
             query_db('UPDATE accounts SET barcode=? WHERE name=?', [new_code, name])
         except BadRequestKeyError:
             # optional parameter
@@ -120,7 +120,7 @@ def account_modify():
         try:
             new_password = request.form['new_password']
             if not new_password:
-                raise ValueError
+                raise BadRequestKeyError
             new_password_hash = generate_password_hash(request.form['new_password'])
             query_db('UPDATE accounts SET password_hash=? WHERE name=?',
                      [new_password_hash, name])
@@ -131,7 +131,7 @@ def account_modify():
         try:
             new_name = request.form['new_name']
             if not new_name:
-                raise ValueError
+                raise BadRequestKeyError
             query_db('UPDATE accounts SET name=? WHERE name=?',
                      [new_name, name])
         except BadRequestKeyError:
