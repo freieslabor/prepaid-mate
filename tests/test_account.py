@@ -113,14 +113,12 @@ def test_account_modification_inexistent(flask_server):
     assert req.status_code == 400
 
 def test_account_modification_empty(flask_server, create_account):
-    """Test account modification with empty string for parameter fails as expected."""
+    """Test account modification with empty string for parameter works as expected."""
     import copy
     import requests
 
     data = create_account
     inputs = (
-        {'new_name': '', 'new_password': 'bar2', 'new_code': '456'},
-        {'new_name': 'foo2', 'new_password': '', 'new_code': '456'},
         {'new_name': 'foo2', 'new_password': 'bar2', 'new_code': ''},
     )
     for input_ in inputs:
@@ -128,8 +126,7 @@ def test_account_modification_empty(flask_server, create_account):
         data_tmp = {**data_tmp, **input_}
 
         req = requests.post('{}/account/modify'.format(API_URL), data=data_tmp)
-        assert req.content == b'Incomplete request', 'input={}'.format(data_tmp)
-        assert req.status_code == 400, 'input={}'.format(data_tmp)
+        assert req.status_code == 200, 'input={}'.format(data_tmp)
 
 def test_account_view_good(flask_server, create_account):
     """Test if account view works."""
