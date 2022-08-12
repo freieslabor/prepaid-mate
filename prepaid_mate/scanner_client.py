@@ -121,7 +121,7 @@ class ScannerClient:
             self.logger.info('add balance callback successful: %s', req.content.decode('utf-8'))
             self.play_status_sound(ScannerClient.PAYMENT_SUCCEEDED_AUDIO)
             saldo = self.cents_to_natural_speech(req.content.decode('utf-8'))
-            self.log_and_speak('Added {} Euro, your balance is {}'.format(amount, saldo_speech))
+            self.log_and_speak('Added {} Euro, your balance is {}'.format(amount, saldo))
         elif req.status_code == 400:
             self.logger.error('add balance callback failed: %s (%d)', req.content.decode('utf-8'),
                               req.status_code)
