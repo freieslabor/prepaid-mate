@@ -5,8 +5,12 @@ PYTHON_ENV_ROOT=envs
 PYTHON_DEV_ENV=$(PYTHON_ENV_ROOT)/$(PYTHON)-dev
 PYTHON_TEST_ENV=$(PYTHON_ENV_ROOT)/$(PYTHON)-test
 
+HOST=localhost
+PORT=5000
+SHELL_SERVER_URL=file://socket
 
-.PHONY: all distclean test server
+
+.PHONY: all distclean test server server-shell
 
 all: server
 
@@ -39,4 +43,14 @@ test: | $(PYTHON_TEST_ENV)
 
 server: | config $(PYTHON_DEV_ENV)
 	. $(PYTHON_DEV_ENV)/bin/activate && \
-	flask run $(args)
+	lona run-server \
+		--project-root=prepaid_mate \
+		--settings settings.py \
+		--host=$(HOST) \
+		--port=$(PORT) \
+		--shell-server-url=$(SHELL_SERVER_URL) \
+		$(args)
+
+server-shell: | $(PYTHON_DEV_ENV)
+	. $(PYTHON_DEV_ENV)/bin/activate && \
+	rlpython $(SHELL_SERVER_URL) $(args)
