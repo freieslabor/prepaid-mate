@@ -5,3 +5,4 @@ Flask
 gunicorn
 lona==1.11
 aiohttp-wsgi==0.10.0
+django>=3.2,<3.3

@@ -21,5 +21,6 @@ __name__ == '__main__' and setup(name='prepaid-mate',
             'scanner-client = prepaid_mate.scanner_client:main',
             'prepaid-mate-reset-pw = prepaid_mate.reset_password:main',
             'prepaid-mate-new-drink = prepaid_mate.add_drink:main',
+            'prepaid-mate-manage-django = prepaid_mate._django.manage:main',
         ]
     })

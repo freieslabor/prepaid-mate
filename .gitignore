@@ -6,3 +6,4 @@ prepaid-mate-venv
 *.pyc
 config
 /envs/
+/prepaid_mate/static/django

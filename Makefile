@@ -10,13 +10,26 @@ PORT=5000
 SHELL_SERVER_URL=file://socket
 
 
-.PHONY: all distclean test server server-shell
+.PHONY: all distclean test server server-shell migrate collectstatic superuser
 
 all: server
 
 # helper ######################################################################
 distclean:
+	rm -rf prepaid_mate/static/django
 	rm -rf $(PYTHON_ENV_ROOT)
+
+migrate: | $(PYTHON_DEV_ENV)
+	. $(PYTHON_DEV_ENV)/bin/activate && \
+	prepaid-mate-manage-django migrate $(args)
+
+collectstatic: | $(PYTHON_DEV_ENV)
+	. $(PYTHON_DEV_ENV)/bin/activate && \
+	prepaid-mate-manage-django collectstatic $(args)
+
+superuser: | $(PYTHON_DEV_ENV)
+	. $(PYTHON_DEV_ENV)/bin/activate && \
+	prepaid-mate-manage-django createsuperuser $(args)
 
 # prequisits ##################################################################
 $(PYTHON_DEV_ENV): requirements.txt
@@ -33,6 +46,10 @@ $(PYTHON_TEST_ENV): test-requirements.txt
 	pip install pip --upgrade && \
 	pip install -r ./test-requirements.txt
 
+prepaid_mate/static/django: | $(PYTHON_DEV_ENV)
+	. $(PYTHON_DEV_ENV)/bin/activate && \
+	prepaid-mate-manage-django collectstatic
+
 config:
 	cp config.sample config
 
@@ -41,7 +58,7 @@ test: | $(PYTHON_TEST_ENV)
 	. $(PYTHON_TEST_ENV)/bin/activate && \
 	pytest -v $(args)
 
-server: | config $(PYTHON_DEV_ENV)
+server: | config $(PYTHON_DEV_ENV) prepaid_mate/static/django
 	. $(PYTHON_DEV_ENV)/bin/activate && \
 	lona run-server \
 		--project-root=prepaid_mate \
