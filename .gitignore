@@ -5,3 +5,4 @@ prepaid-mate-venv
 .*.swp
 *.pyc
 config
+/envs/
