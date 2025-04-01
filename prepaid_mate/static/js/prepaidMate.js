@@ -26,6 +26,13 @@ function autoFillRFID() {
 				}
 			});
 		}
+		if ($('#modifyRFID').val() == '') {
+			$.get('/api/last_unknown_code', function(data) {
+				if (data != '' && $('#modifyRFID').val() == '') {
+					$('#modifyRFID').val(data);
+				}
+			});
+		}
 	}, 1000);
 }
 
